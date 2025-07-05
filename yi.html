@@ -2,1311 +2,1333 @@
 <html lang="zh-CN">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大衍筮法起卦</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: "SimSun", "宋体", serif;
-            background: linear-gradient(135deg, #0c151f, #1a2838);
-            color: #e0d6b9;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image:
-                radial-gradient(circle at 10% 20%, rgba(64, 64, 128, 0.15) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(128, 64, 64, 0.15) 0%, transparent 20%),
-                radial-gradient(circle at 50% 50%, rgba(64, 128, 128, 0.1) 0%, transparent 30%),
-                url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path d="M20,20 Q100,5 180,20 T180,180 Q100,195 20,180 T20,20" fill="none" stroke="rgba(100,80,60,0.1)" stroke-width="1"/></svg>');
-            z-index: -1;
-        }
-
-        .header {
-            text-align: center;
-            margin-bottom: 15px;
-            position: relative;
-            width: 100%;
-            padding-top: 15px;
-        }
-
-        /* 新增主容器样式 */
-        .main-wrapper {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 1400px;
-        }
-
-
-        .title {
-            font-size: 2.2rem;
-            letter-spacing: 6px;
-            margin-bottom: 8px;
-            color: #d4b483;
-            text-shadow: 0 0 12px rgba(212, 180, 131, 0.7);
-            position: relative;
-            display: inline-block;
-        }
-
-        .subtitle {
-            font-size: 1.0rem;
-            color: #a9a085;
-            margin-top: 5px;
-            letter-spacing: 2px;
-        }
-
-        .control-panel {
-            background: rgba(20, 30, 40, 0.85);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 10px 0;
-            width: 100%;
-            max-width: 800px;
-            border: 1px solid rgba(100, 80, 60, 0.4);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .control-group {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .control-label {
-            font-size: 0.9rem;
-            color: #d4b483;
-        }
-
-        .gua-select {
-            padding: 8px 12px;
-            background: rgba(30, 40, 50, 0.8);
-            border: 1px solid #8a6d3b;
-            border-radius: 6px;
-            color: #d4b483;
-            font-family: "SimSun", "宋体", serif;
-            min-width: 120px;
-        }
-
-        .apply-btn {
-            padding: 8px 20px;
-            background: linear-gradient(to right, #8a6d3b, #d4b483);
-            color: #1a1a1a;
-            border: none;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .apply-btn:hover {
-            background: linear-gradient(to right, #d4b483, #f0c060);
-            box-shadow: 0 0 10px rgba(212, 180, 131, 0.5);
-        }
-
-        .result-bar {
-            background: rgba(20, 30, 40, 0.85);
-            border-radius: 10px;
-            padding: 15px 25px;
-            margin: 10px 0 15px;
-            width: 100%;
-            max-width: 800px;
-            text-align: center;
-            border: 1px solid rgba(100, 80, 60, 0.4);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-            position: relative;
-            z-index: 2;
-        }
-
-        .result-bar h3 {
-            font-size: 1.3rem;
-            color: #d4b483;
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-        }
-
-        .result-text {
-            font-size: 1.8rem;
-            color: #f0c060;
-            letter-spacing: 2px;
-            text-shadow: 0 0 12px rgba(240, 192, 96, 0.7);
-            font-family: "楷体", "KaiTi", serif;
-            margin: 5px 0;
-            padding: 5px 0;
-            border-top: 1px solid rgba(100, 80, 60, 0.3);
-            border-bottom: 1px solid rgba(100, 80, 60, 0.3);
-        }
-
-        .result-info {
-            font-size: 1.1rem;
-            margin-top: 5px;
-            color: #d4b483;
-        }
-
-        .result-info.change {
-            color: #f0c060;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 800px;
-            background: rgba(10, 20, 30, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(100, 80, 60, 0.4);
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .main-content {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            gap: 15px;
-        }
-
-        .grass-counter {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            color: #d4b483;
-            border: 1px solid rgba(100, 80, 60, 0.3);
-        }
-
-        .gua-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 10px 0;
-            width: 100%;
-            position: relative;
-        }
-
-        .yao-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 6px 0;
-            width: 100%;
-            position: relative;
-        }
-
-        .yao-button {
-            width: 85px;
-            padding: 8px;
-            margin: 0 12px;
-            background: rgba(60, 40, 20, 0.7);
-            color: #d4b483;
-            border: 1px solid #8a6d3b;
-            border-radius: 6px;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .yao-button:hover:enabled {
-            background: rgba(100, 80, 40, 0.9);
-            box-shadow: 0 0 12px rgba(212, 180, 131, 0.7);
-            transform: translateY(-1px);
-        }
-
-        .yao-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .yao-display {
-            width: 220px;
-            height: 40px;
-            background: rgba(20, 15, 10, 0.7);
-            border-radius: 6px;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid rgba(100, 80, 60, 0.4);
-            box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
-        }
-
-        .yin-yao {
-            display: flex;
-            justify-content: space-between;
-            width: 160px;
-            height: 20px;
-            position: relative;
-        }
-
-        .yin-part {
-            width: 75px;
-            height: 20px;
-            border-radius: 2px;
-            background-color: #446;
-        }
-
-        .yin-part.old {
-            background: linear-gradient(to right, #335, #669, #335);
-            box-shadow: 0 0 4px rgba(100, 150, 255, 0.5);
-            border: 2px solid goldenrod;
-        }
-
-        .yang-yao {
-            width: 160px;
-            height: 20px;
-            border-radius: 2px;
-            background-color: #c44;
-            position: relative;
-        }
-
-        .yang-yao.old {
-            background: linear-gradient(to right, #a33, #f66, #a33);
-            box-shadow: 0 0 4px rgba(255, 100, 100, 0.6);
-            border: 2px solid goldenrod;
-        }
-
-        .change-marker {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(135deg, gold, #ffcc00);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #000;
-            font-weight: bold;
-            font-size: 11px;
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
-            z-index: 10;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
-            }
-
-            50% {
-                transform: scale(1.1);
-                box-shadow: 0 0 12px rgba(255, 215, 0, 1);
-            }
-
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
-            }
-        }
-
-        .process-panel {
-            width: 100%;
-            background: rgba(15, 25, 35, 0.85);
-            border-radius: 8px;
-            padding: 15px;
-            margin: 10px 0;
-            border: 1px solid rgba(100, 80, 60, 0.4);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-        }
-
-        .panel-title {
-            text-align: center;
-            font-size: 1.2rem;
-            color: #d4b483;
-            margin-bottom: 12px;
-            letter-spacing: 1px;
-            position: relative;
-            font-weight: normal;
-        }
-
-        .panel-title::after {
-            content: "";
-            display: block;
-            width: 60%;
-            height: 1px;
-            background: linear-gradient(to right, transparent, #8a6d3b, transparent);
-            margin: 8px auto;
-        }
-
-        .process-list {
-            margin: 12px 0;
-        }
-
-        .process-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px;
-            margin: 6px 0;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 5px;
-            font-size: 0.9rem;
-        }
-
-        .process-item span {
-            flex: 1;
-            text-align: center;
-        }
-
-        .process-item .yao-name {
-            color: #f0c060;
-            font-weight: bold;
-        }
-
-        .process-item .yao-value {
-            color: #d4b483;
-            font-weight: bold;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: center;
-            margin: 12px 0;
-            width: 100%;
-        }
-
-        .restart-btn {
-            padding: 10px 35px;
-            font-size: 1.1rem;
-            background: linear-gradient(to right, #8a6d3b, #d4b483, #8a6d3b);
-            color: #1a1a1a;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            font-weight: bold;
-            letter-spacing: 1px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
-        }
-
-        .restart-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
-            background: linear-gradient(to right, #d4b483, #f0c060, #d4b483);
-        }
-
-        .explanation {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #a9a085;
-            line-height: 1.5;
-            max-width: 700px;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            border: 1px solid rgba(100, 80, 60, 0.3);
-        }
-
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            color: #8a6d3b;
-            font-size: 0.8rem;
-            padding: 12px;
-            width: 100%;
-            letter-spacing: 1px;
-        }
-
-        .gua-details-container {
-            width: 100%;
-            max-width: 800px;
-            background: rgba(10, 20, 30, 0.8);
-            border-radius: 15px;
-            padding: 20px;
-            margin-top: 10px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(100, 80, 60, 0.4);
-        }
-
-        .gua-details-header {
-            text-align: center;
-            margin-bottom: 15px;
-            color: #d4b483;
-            border-bottom: 1px solid rgba(100, 80, 60, 0.4);
-            padding-bottom: 10px;
-        }
-
-        .gua-details-content {
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        .gua-text {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-        }
-
-        .gua-text-title {
-            color: #f0c060;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-
-        .yao-item {
-            padding: 10px;
-            margin: 8px 0;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 8px;
-            border-left: 3px solid rgba(100, 80, 60, 0.4);
-        }
-
-        .yao-item.changed {
-            background: rgba(60, 40, 20, 0.5);
-            border-left: 3px solid #f0c060;
-        }
-
-        .yao-item.special {
-            background: rgba(80, 100, 40, 0.5);
-            border-left: 3px solid gold;
-            box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
-        }
-
-        .yao-title {
-            color: #d4b483;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        /* 宽屏布局 - 最小宽度 1000px */
-        @media (min-width: 1000px) {
-            .main-wrapper {
-                flex-direction: row;
-                gap: 20px;
-                align-items: flex-start;
-            }
-
-            .content-column {
-                flex: 1;
-                max-width: 700px;
-            }
-
-            .gua-details-container {
-                flex: 1;
-                position: sticky;
-                height: fit-content;
-            }
-        }
-
-        /* 窄屏布局 - 最大宽度 999px */
-        @media (max-width: 999px) {
-            .gua-details-container {
-                width: 100%;
-                max-width: 800px;
-                margin-top: 20px;
-            }
-        }
-
-        /* 调整窄屏下的控制面板布局 */
-        @media (max-width: 768px) {
-            .control-panel {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .control-group {
-                flex-direction: row;
-                justify-content: space-between;
-                margin-bottom: 10px;
-            }
-
-            .control-label {
-                min-width: 60px;
-            }
-
-            .gua-select {
-                flex-grow: 1;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .title {
-                font-size: 1.8rem;
-            }
-
-            .result-bar {
-                padding: 10px 15px;
-            }
-
-            .result-bar h3 {
-                font-size: 1.1rem;
-            }
-
-            .result-text {
-                font-size: 1.4rem;
-            }
-
-            .yao-display {
-                width: 200px;
-            }
-
-            .yin-yao,
-            .yang-yao {
-                width: 130px;
-            }
-
-            .yin-part {
-                width: 60px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .process-item {
-                font-size: 0.8rem;
-                padding: 6px;
-            }
-
-            .yao-button {
-                width: 75px;
-                padding: 6px;
-                font-size: 0.85rem;
-                margin: 0 8px;
-            }
-
-            .yao-display {
-                width: 150px;
-                height: 35px;
-            }
-
-            .yin-yao,
-            .yang-yao {
-                width: 110px;
-            }
-
-            .yin-part {
-                width: 50px;
-            }
-
-            .control-group {
-                flex-direction: column;
-            }
-
-            .control-label {
-                margin-bottom: 5px;
-            }
-
-            .apply-btn {
-                width: 100%;
-                margin-top: 10px;
-            }
-        }
-    </style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>大衍筮法起卦</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: "SimSun", "宋体", serif;
+			background: linear-gradient(135deg, #0c151f, #1a2838);
+			color: #e0d6b9;
+			min-height: 100vh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			padding: 15px;
+			position: relative;
+			overflow-x: hidden;
+		}
+
+		body::before {
+			content: "";
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background-image:
+				radial-gradient(circle at 10% 20%, rgba(64, 64, 128, 0.15) 0%, transparent 20%),
+				radial-gradient(circle at 90% 80%, rgba(128, 64, 64, 0.15) 0%, transparent 20%),
+				radial-gradient(circle at 50% 50%, rgba(64, 128, 128, 0.1) 0%, transparent 30%),
+				url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path d="M20,20 Q100,5 180,20 T180,180 Q100,195 20,180 T20,20" fill="none" stroke="rgba(100,80,60,0.1)" stroke-width="1"/></svg>');
+			z-index: -1;
+		}
+
+		.header {
+			text-align: center;
+			margin-bottom: 15px;
+			position: relative;
+			width: 100%;
+			padding-top: 15px;
+		}
+
+		.main-wrapper {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			transition: all 0.6s ease;
+		}
+		
+		.title {
+			font-size: 2.2rem;
+			letter-spacing: 6px;
+			margin-bottom: 8px;
+			color: #d4b483;
+			text-shadow: 0 0 12px rgba(212, 180, 131, 0.7);
+			position: relative;
+			display: inline-block;
+		}
+
+		.subtitle {
+			font-size: 1.0rem;
+			color: #a9a085;
+			margin-top: 5px;
+			letter-spacing: 2px;
+		}
+
+		.control-panel {
+			background: rgba(20, 30, 40, 0.85);
+			border-radius: 10px;
+			padding: 15px;
+			margin: 10px 0;
+			width: 100%;
+			max-width: 800px;
+			border: 1px solid rgba(100, 80, 60, 0.4);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+			display: flex;
+			flex-wrap: wrap;
+			gap: 10px;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.control-group {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.control-label {
+			font-size: 0.9rem;
+			color: #d4b483;
+		}
+
+		.gua-select {
+			padding: 8px 12px;
+			background: rgba(30, 40, 50, 0.8);
+			border: 1px solid #8a6d3b;
+			border-radius: 6px;
+			color: #d4b483;
+			font-family: "SimSun", "宋体", serif;
+			min-width: 120px;
+		}
+
+		.apply-btn {
+			padding: 8px 20px;
+			background: linear-gradient(to right, #8a6d3b, #d4b483);
+			color: #1a1a1a;
+			border: none;
+			border-radius: 20px;
+			cursor: pointer;
+			font-weight: bold;
+			transition: all 0.3s ease;
+		}
+
+		.apply-btn:hover {
+			background: linear-gradient(to right, #d4b483, #f0c060);
+			box-shadow: 0 0 10px rgba(212, 180, 131, 0.5);
+		}
+
+		.result-bar {
+			background: rgba(20, 30, 40, 0.85);
+			border-radius: 10px;
+			padding: 15px 25px;
+			margin: 10px 0 15px;
+			width: 100%;
+			max-width: 800px;
+			text-align: center;
+			border: 1px solid rgba(100, 80, 60, 0.4);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+			position: relative;
+			z-index: 2;
+		}
+
+		.result-bar h3 {
+			font-size: 1.3rem;
+			color: #d4b483;
+			margin-bottom: 10px;
+			letter-spacing: 2px;
+		}
+
+		.result-text {
+			font-size: 1.8rem;
+			color: #f0c060;
+			letter-spacing: 2px;
+			text-shadow: 0 0 12px rgba(240, 192, 96, 0.7);
+			font-family: "楷体", "KaiTi", serif;
+			margin: 5px 0;
+			padding: 5px 0;
+			border-top: 1px solid rgba(100, 80, 60, 0.3);
+			border-bottom: 1px solid rgba(100, 80, 60, 0.3);
+		}
+
+		.result-info {
+			font-size: 1.1rem;
+			margin-top: 5px;
+			color: #d4b483;
+		}
+
+		.result-info.change {
+			color: #f0c060;
+		}
+
+		.container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			width: 100%;
+			max-width: 800px;
+			background: rgba(10, 20, 30, 0.8);
+			border-radius: 15px;
+			padding: 20px;
+			box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+			border: 1px solid rgba(100, 80, 60, 0.4);
+			position: relative;
+			overflow: hidden;
+			z-index: 1;
+		}
+
+		.main-content {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			gap: 15px;
+		}
+
+		.grass-counter {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			background: rgba(0, 0, 0, 0.4);
+			padding: 5px 10px;
+			border-radius: 20px;
+			font-size: 0.85rem;
+			color: #d4b483;
+			border: 1px solid rgba(100, 80, 60, 0.3);
+		}
+
+		.gua-container {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			margin: 10px 0;
+			width: 100%;
+			position: relative;
+		}
+
+		.yao-row {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			margin: 6px 0;
+			width: 100%;
+			position: relative;
+		}
+
+		.yao-button {
+			width: 85px;
+			padding: 8px;
+			margin: 0 12px;
+			background: rgba(60, 40, 20, 0.7);
+			color: #d4b483;
+			border: 1px solid #8a6d3b;
+			border-radius: 6px;
+			font-size: 0.95rem;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			text-align: center;
+			box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+		}
+
+		.yao-button:hover:enabled {
+			background: rgba(100, 80, 40, 0.9);
+			box-shadow: 0 0 12px rgba(212, 180, 131, 0.7);
+			transform: translateY(-1px);
+		}
+
+		.yao-button:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+
+		.yao-display {
+			width: 220px;
+			height: 40px;
+			background: rgba(20, 15, 10, 0.7);
+			border-radius: 6px;
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			border: 1px solid rgba(100, 80, 60, 0.4);
+			box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.5);
+		}
+
+		.yin-yao {
+			display: flex;
+			justify-content: space-between;
+			width: 160px;
+			height: 20px;
+			position: relative;
+		}
+
+		.yin-part {
+			width: 75px;
+			height: 20px;
+			border-radius: 2px;
+			background-color: #446;
+		}
+
+		.yin-part.old {
+			background: linear-gradient(to right, #335, #669, #335);
+			box-shadow: 0 0 4px rgba(100, 150, 255, 0.5);
+			border: 2px solid goldenrod;
+		}
+
+		.yang-yao {
+			width: 160px;
+			height: 20px;
+			border-radius: 2px;
+			background-color: #c44;
+			position: relative;
+		}
+
+		.yang-yao.old {
+			background: linear-gradient(to right, #a33, #f66, #a33);
+			box-shadow: 0 0 4px rgba(255, 100, 100, 0.6);
+			border: 2px solid goldenrod;
+		}
+
+		.change-marker {
+			position: absolute;
+			top: -10px;
+			right: -10px;
+			width: 20px;
+			height: 20px;
+			background: linear-gradient(135deg, gold, #ffcc00);
+			border-radius: 50%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			color: #000;
+			font-weight: bold;
+			font-size: 11px;
+			box-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
+			z-index: 10;
+			animation: pulse 1.5s infinite;
+		}
+
+		@keyframes pulse {
+			0% {
+				transform: scale(1);
+				box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+			}
+
+			50% {
+				transform: scale(1.1);
+				box-shadow: 0 0 12px rgba(255, 215, 0, 1);
+			}
+
+			100% {
+				transform: scale(1);
+				box-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+			}
+		}
+
+		.process-panel {
+			width: 100%;
+			background: rgba(15, 25, 35, 0.85);
+			border-radius: 8px;
+			padding: 15px;
+			margin: 10px 0;
+			border: 1px solid rgba(100, 80, 60, 0.4);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+		}
+
+		.panel-title {
+			text-align: center;
+			font-size: 1.2rem;
+			color: #d4b483;
+			margin-bottom: 12px;
+			letter-spacing: 1px;
+			position: relative;
+			font-weight: normal;
+		}
+
+		.panel-title::after {
+			content: "";
+			display: block;
+			width: 60%;
+			height: 1px;
+			background: linear-gradient(to right, transparent, #8a6d3b, transparent);
+			margin: 8px auto;
+		}
+
+		.process-list {
+			margin: 12px 0;
+		}
+
+		.process-item {
+			display: flex;
+			justify-content: space-between;
+			padding: 8px;
+			margin: 6px 0;
+			background: rgba(0, 0, 0, 0.3);
+			border-radius: 5px;
+			font-size: 0.9rem;
+		}
+
+		.process-item span {
+			flex: 1;
+			text-align: center;
+		}
+
+		.process-item .yao-name {
+			color: #f0c060;
+			font-weight: bold;
+		}
+
+		.process-item .yao-value {
+			color: #d4b483;
+			font-weight: bold;
+		}
+
+		.button-container {
+			display: flex;
+			justify-content: center;
+			margin: 12px 0;
+			width: 100%;
+		}
+
+		.restart-btn {
+			padding: 10px 35px;
+			font-size: 1.1rem;
+			background: linear-gradient(to right, #8a6d3b, #d4b483, #8a6d3b);
+			color: #1a1a1a;
+			border: none;
+			border-radius: 30px;
+			cursor: pointer;
+			transition: all 0.4s ease;
+			font-weight: bold;
+			letter-spacing: 1px;
+			box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
+		}
+
+		.restart-btn:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+			background: linear-gradient(to right, #d4b483, #f0c060, #d4b483);
+		}
+
+		.explanation {
+			text-align: center;
+			margin-top: 20px;
+			font-size: 0.9rem;
+			color: #a9a085;
+			line-height: 1.5;
+			max-width: 700px;
+			padding: 12px;
+			background: rgba(0, 0, 0, 0.3);
+			border-radius: 8px;
+			border: 1px solid rgba(100, 80, 60, 0.3);
+		}
+
+		.footer {
+			margin-top: 20px;
+			text-align: center;
+			color: #8a6d3b;
+			font-size: 0.8rem;
+			padding: 12px;
+			width: 100%;
+			letter-spacing: 1px;
+		}
+
+		.gua-details-container {
+			width: 100%;
+			max-width: 800px;
+			background: rgba(10, 20, 30, 0.8);
+			border-radius: 15px;
+			padding: 20px;
+			margin-top: 10px;
+			box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+			border: 1px solid rgba(100, 80, 60, 0.4);
+			opacity: 0;
+			transform: translateX(50px);
+			transition: all 0.5s ease 0.3s;
+		}
+
+		.gua-details-container.show {
+			opacity: 1;
+			transform: translateX(0);
+		}
+
+		.gua-details-header {
+			text-align: center;
+			margin-bottom: 15px;
+			color: #d4b483;
+			border-bottom: 1px solid rgba(100, 80, 60, 0.4);
+			padding-bottom: 10px;
+		}
+
+		.gua-details-content {
+			font-size: 0.95rem;
+			line-height: 1.6;
+		}
+
+		.gua-text {
+			margin-bottom: 15px;
+			padding: 10px;
+			background: rgba(0, 0, 0, 0.3);
+			border-radius: 8px;
+		}
+
+		.gua-text-title {
+			color: #f0c060;
+			margin-bottom: 5px;
+			font-weight: bold;
+		}
+
+		.yao-item {
+			padding: 10px;
+			margin: 8px 0;
+			background: rgba(0, 0, 0, 0.3);
+			border-radius: 8px;
+			border-left: 3px solid rgba(100, 80, 60, 0.4);
+		}
+
+		.yao-item.changed {
+			background: rgba(60, 40, 20, 0.5);
+			border-left: 3px solid #f0c060;
+		}
+
+		.yao-item.special {
+			background: rgba(80, 100, 40, 0.5);
+			border-left: 3px solid gold;
+			box-shadow: 0 0 8px rgba(255, 215, 0, 0.3);
+		}
+
+		.yao-title {
+			color: #d4b483;
+			font-weight: bold;
+			margin-bottom: 5px;
+		}
+
+		/* 宽屏布局 - 最小宽度 1000px */
+		@media (min-width: 1000px) {
+			.main-wrapper {
+				flex-direction: row;
+				gap: 20px;
+				align-items: flex-start;
+			}
+			.main-wrapper.show-details {
+				flex-direction: row;
+				align-items: flex-start;
+				justify-content: center;
+			}
+
+			.content-column {
+				flex: 1;
+				max-width: 700px;
+			}
+
+			.gua-details-container {
+				flex: 1;
+				position: sticky;
+				height: fit-content;
+			}
+		}
+
+		/* 窄屏布局 - 最大宽度 999px */
+		@media (max-width: 999px) {
+			.gua-details-container {
+				width: 100%;
+				max-width: 800px;
+				margin-top: 20px;
+			}
+		}
+
+		/* 调整窄屏下的控制面板布局 */
+		@media (max-width: 768px) {
+			.control-panel {
+				flex-direction: row;
+				align-items: stretch;
+			}
+
+			.control-group {
+				flex-direction: row;
+				justify-content: space-between;
+				margin-bottom: 10px;
+			}
+
+			.control-label {
+				min-width: 60px;
+			}
+
+			.gua-select {
+				flex-grow: 1;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.title {
+				font-size: 1.8rem;
+			}
+
+			.result-bar {
+				padding: 10px 15px;
+			}
+
+			.result-bar h3 {
+				font-size: 1.1rem;
+			}
+
+			.result-text {
+				font-size: 1.4rem;
+			}
+
+			.yao-display {
+				width: 200px;
+			}
+
+			.yin-yao,
+			.yang-yao {
+				width: 130px;
+			}
+
+			.yin-part {
+				width: 60px;
+			}
+		}
+
+		@media (max-width: 480px) {
+			.process-item {
+				font-size: 0.8rem;
+				padding: 6px;
+			}
+
+			.yao-button {
+				width: 75px;
+				padding: 6px;
+				font-size: 0.85rem;
+				margin: 0 8px;
+			}
+
+			.yao-display {
+				width: 180px;
+				height: 35px;
+			}
+
+			.yin-yao,
+			.yang-yao {
+				width: 120px;
+			}
+
+			.yin-part {
+				width: 50px;
+			}
+
+			.control-label {
+				margin-bottom: 5px;
+			}
+
+			.apply-btn {
+				width: 80%;
+				margin-top: 10px;
+			}
+		}
+	</style>
 </head>
 
 <body>
-    <div class="header">
-        <h1 class="title">大衍筮法</h1>
-        <div class="subtitle">周易古法占筮 · 十有八变而成卦</div>
-    </div>
-
-    <div class="main-wrapper">
-        <div class="content-column">
-            <!-- 控制面板 -->
-            <div class="control-panel">
-                <div class="control-group">
-                    <span class="control-label">本卦:</span>
-                    <select id="originalGua" class="gua-select">
-                        <option value="">--请选择本卦--</option>
-                        <!-- 卦名选项将由JavaScript动态生成 -->
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <span class="control-label">之卦:</span>
-                    <select id="changedGua" class="gua-select">
-                        <option value="same">同本卦（静卦）</option>
-                        <!-- 卦名选项将由JavaScript动态生成 -->
-                    </select>
-                </div>
-
-                <button class="apply-btn" id="applyBtn">应用卦象</button>
-            </div>
-
-            <!--卦象结果-->
-            <div class="result-bar">
-                <div class="result-text" id="resultText">-</div>
-            </div>
-
-            <div class="container">
-                <div class="grass-counter" id="grassCounter">蓍草: 50根</div>
-
-                <div class="main-content">
-                    <div class="gua-container" id="guaContainer">
-                        <!-- 爻行将由JavaScript动态生成（从下到上） -->
-                    </div>
-
-                    <div class="button-container">
-                        <button class="restart-btn" id="restartBtn">
-                            重占
-                        </button>
-                    </div>
-
-                    <div class="process-panel">
-                        <div class="panel-title">占筮过程</div>
-                        <div class="process-list" id="processList">
-                            <!-- 过程列表将由JavaScript动态生成 -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-        <div class="gua-details-container" id="guaDetailsContainer" style="display: none;">
-            <div class="gua-details-header">
-                <h3 id="guaDetailsTitle"></h3>
-            </div>
-            <div class="gua-details-content" id="guaDetailsContent"></div>
-        </div>
-    </div>
-
-    <div class="explanation">
-        <p>大衍筮法源自《周易·系辞》，使用五十根蓍草，取出一根不用，象征太极。经过"分二"、"挂一"、"揲四"、"归奇"四步为一变，三变成一爻，十八变成一卦。</p>
-    </div>
-    <div class="footer">
-        <p>大衍之数五十，其用四十有九。分而为二以象两，挂一以象三，揲之以四以象四时，归奇于扐以象闰。</p>
-        <p>——《周易·系辞上》</p>
-    </div>
-    <script src="text.js"></script>
-    <script>
-        // 卦名数据
-        const guaData = [
-            "乾", "坤", "屯", "蒙", "需", "讼", "师", "比",
-            "小畜", "履", "泰", "否", "同人", "大有", "谦", "豫",
-            "随", "蛊", "临", "观", "噬嗑", "贲", "剥", "复",
-            "无妄", "大畜", "颐", "大过", "坎", "离", "咸", "恒",
-            "遁", "大壮", "晋", "明夷", "家人", "睽", "蹇", "解",
-            "损", "益", "夬", "姤", "萃", "升", "困", "井",
-            "革", "鼎", "震", "艮", "渐", "归妹", "丰", "旅",
-            "巽", "兑", "涣", "节", "中孚", "小过", "既济", "未济"
-        ];
-
-        // 卦序查找表
-        const guaOrderMap = {};
-        guaData.forEach((name, index) => {
-            guaOrderMap[name] = index + 1; // 卦序从1开始
-        });
-
-        // 二进制卦序映射
-        const binaryOrder = [
-            "坤", "剥", "比", "观", "豫", "晋", "萃", "否",
-            "谦", "艮", "蹇", "渐", "小过", "旅", "咸", "遁",
-            "师", "蒙", "坎", "涣", "解", "未济", "困", "讼",
-            "升", "蛊", "井", "巽", "恒", "鼎", "大过", "姤",
-            "复", "颐", "屯", "益", "震", "噬嗑", "随", "无妄",
-            "明夷", "贲", "既济", "家人", "丰", "离", "革", "同人",
-            "临", "损", "节", "中孚", "归妹", "睽", "兑", "履",
-            "泰", "大畜", "需", "小畜", "大壮", "大有", "夬", "乾"
-        ];
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const guaContainer = document.getElementById('guaContainer');
-            const grassCounter = document.getElementById('grassCounter');
-            const processList = document.getElementById('processList');
-            const resultText = document.getElementById('resultText');
-            const restartBtn = document.getElementById('restartBtn');
-            const applyBtn = document.getElementById('applyBtn');
-            const originalGuaSelect = document.getElementById('originalGua');
-            const changedGuaSelect = document.getElementById('changedGua');
-
-            // 创建50根蓍草对象
-            let grasses = [];
-            let currentYao = 0;
-            let guaArray = [];
-            let changeYaoIndex = -1;
-            let processRecords = []; // 存储占筮过程记录
-
-            // 填充卦名下拉列表
-            function populateGuaSelects() {
-                guaData.forEach((gua, index) => {
-                    const option1 = document.createElement('option');
-                    option1.value = gua;
-                    option1.textContent = `${index + 1}.${gua}`;
-                    originalGuaSelect.appendChild(option1);
-
-                    const option2 = document.createElement('option');
-                    option2.value = gua;
-                    option2.textContent = `${index + 1}.${gua}`;
-                    changedGuaSelect.appendChild(option2);
-                });
-            }
-
-            // 创建蓍草
-            function createGrasses() {
-                grasses = [];
-                for (let i = 0; i < 50; i++) {
-                    grasses.push({
-                        id: i,
-                        used: false
-                    });
-                }
-                updateGrassCounter();
-            }
-
-            // 更新蓍草计数器
-            function updateGrassCounter() {
-                const usedCount = grasses.filter(g => g.used).length;
-                grassCounter.textContent = `蓍草: ${50 - usedCount}根`;
-            }
-
-            // 初始化爻行
-            function initYaoRows() {
-                guaContainer.innerHTML = '';
-                processRecords = [];
-                processList.innerHTML = '';
-                resultText.textContent = '-';
-
-                // 清除之前的结果信息
-                const resultBar = document.querySelector('.result-bar');
-                const extraInfos = resultBar.querySelectorAll('.result-info');
-                extraInfos.forEach(el => el.remove());
-
-                // 从5（上爻）到0（初爻）倒序创建
-                for (let i = 5; i >= 0; i--) {
-                    const yaoRow = document.createElement('div');
-                    yaoRow.className = 'yao-row';
-                    yaoRow.id = `yaoRow${i}`;
-
-                    const yaoDisplay = document.createElement('div');
-                    yaoDisplay.className = 'yao-display';
-                    yaoDisplay.id = `yaoDisplay${i}`;
-
-                    const yaoButton = document.createElement('button');
-                    yaoButton.className = 'yao-button';
-                    yaoButton.id = `yaoBtn${i}`;
-
-                    // 设置按钮文本（从初到上）
-                    const yaoNames = ['初', '二', '三', '四', '五', '上'];
-                    yaoButton.textContent = `占${yaoNames[i]}爻`;
-
-                    // 添加点击事件
-                    yaoButton.addEventListener('click', () => generateYao(i));
-
-                    // 只有初爻（i=0）按钮初始可点击
-                    yaoButton.disabled = i !== 0;
-
-                    yaoRow.appendChild(yaoDisplay);
-                    yaoRow.appendChild(yaoButton);
-                    guaContainer.appendChild(yaoRow);
-                }
-            }
-
-            // 更新占筮过程列表
-            function updateProcessList(yaoIndex, steps, finalValue) {
-                const yaoNames = ['初', '二', '三', '四', '五', '上'];
-                const yaoType = getYaoType(finalValue);
-
-                const processItem = document.createElement('div');
-                processItem.className = 'process-item';
-
-                processItem.innerHTML = `
-                    <span class="yao-name">${yaoNames[yaoIndex]}爻</span>
-                    <span>${steps[0]}策</span>
-                    <span>${steps[1]}策</span>
-                    <span>${steps[2]}策</span>
-                    <span class="yao-value">${finalValue} (${yaoType})</span>
-                `;
-
-                processList.appendChild(processItem);
-                processRecords.push({
-                    yaoIndex,
-                    steps,
-                    finalValue,
-                    yaoType
-                });
-            }
-
-            // 大衍筮法生成一爻
-            function generateYao(yaoIndex) {
-                // 重置蓍草使用状态（除太极草外）
-                grasses.forEach(g => {
-                    if (g.id !== 0) g.used = false;
-                });
-
-                // 使用49根蓍草（排除太极草）
-                let availableGrasses = grasses.filter(g => !g.used && g.id !== 0);
-                let steps = [];
-
-                // 模拟三变过程
-                setTimeout(() => {
-                    // 第一变
-                    const result1 = performDayanStep(availableGrasses, 49);
-                    steps.push(result1.remaining);
-                    updateGrassCounter();
-
-                    setTimeout(() => {
-                        // 第二变
-                        const result2 = performDayanStep(availableGrasses, result1.remaining);
-                        steps.push(result2.remaining);
-                        updateGrassCounter();
-
-                        setTimeout(() => {
-                            // 第三变
-                            const result3 = performDayanStep(availableGrasses, result2.remaining);
-                            steps.push(result3.remaining);
-                            updateGrassCounter();
-
-                            // 计算最终结果
-                            const yaoValue = result3.remaining / 4;
-
-                            // 保存爻信息
-                            guaArray[yaoIndex] = yaoValue;
-
-                            // 更新占筮过程
-                            updateProcessList(yaoIndex, steps, yaoValue);
-
-                            // 绘制爻
-                            drawYao(yaoIndex, yaoValue);
-
-                            // 禁用当前爻按钮
-                            const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
-                            currentBtn.disabled = true;
-
-                            // 如果是最后一爻（上爻，i=5），显示卦结果
-                            if (yaoIndex === 5) {
-                                setTimeout(showGuaResult, 500);
-                            }
-                            // 启用下一爻按钮（如果不是最后一爻）
-                            else {
-                                const nextYaoIndex = yaoIndex + 1;
-                                const nextBtn = document.getElementById(`yaoBtn${nextYaoIndex}`);
-                                nextBtn.disabled = false;
-                            }
-                        }, 200);
-                    }, 200);
-                }, 200);
-            }
-
-            // 执行大衍筮法的一变
-            function performDayanStep(availableGrasses, startingCount) {
-                // 获取可用的蓍草
-                let unusedGrasses = availableGrasses.filter(g => !g.used);
-
-                // 随机排序
-                shuffleArray(unusedGrasses);
-
-                // 分二：随机分成两部分
-                const part1Count = Math.floor(Math.random() * (startingCount - 1)) + 1;
-                const part1 = unusedGrasses.slice(0, part1Count);
-                const part2 = unusedGrasses.slice(part1Count, part1Count + startingCount - part1Count);
-
-                // 挂一：从右边取出一根（随机选择）
-                const rightGrass = part2[Math.floor(Math.random() * part2.length)];
-                rightGrass.used = true;
-                const rightAfterRemove = part2.filter(g => g !== rightGrass);
-
-                // 揲四：分别除以4取余数
-                const remainder1 = part1.length % 4 || 4;
-                const remainder2 = rightAfterRemove.length % 4 || 4;
-
-                // 随机选择余数草
-                const remainderGrasses1 = shuffleArray(part1.slice(0, remainder1));
-                const remainderGrasses2 = shuffleArray(rightAfterRemove.slice(0, remainder2));
-
-                // 标记使用的蓍草
-                remainderGrasses1.forEach(g => g.used = true);
-                remainderGrasses2.forEach(g => g.used = true);
-                rightGrass.used = true;
-
-                // 归奇：计算剩余策数
-                const removed = 1 + remainder1 + remainder2;
-                const remaining = startingCount - removed;
-
-                return { remaining };
-            }
-
-            // 随机打乱数组
-            function shuffleArray(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
-                }
-                return array;
-            }
-
-            // 获取爻的类型
-            function getYaoType(value) {
-                if (value === 6) return '老阴';
-                if (value === 7) return '少阳';
-                if (value === 8) return '少阴';
-                if (value === 9) return '老阳';
-                return '';
-            }
-
-            // 绘制爻（阴爻中间断开）
-            function drawYao(yaoIndex, value) {
-                const yaoDisplay = document.getElementById(`yaoDisplay${yaoIndex}`);
-                yaoDisplay.innerHTML = '';
-
-                // 添加爻值显示
-                const valueText = document.createElement('div');
-                valueText.style.position = 'absolute';
-                valueText.style.left = '15px';
-                valueText.style.color = '#f0c060';
-                valueText.style.fontWeight = 'bold';
-                valueText.style.fontSize = '1.2rem';
-                valueText.textContent = value;
-                yaoDisplay.appendChild(valueText);
-
-                if (value === 6 || value === 8) {
-                    // 阴爻（中间断开）
-                    const yinContainer = document.createElement('div');
-                    yinContainer.className = 'yin-yao';
-
-                    const part1 = document.createElement('div');
-                    part1.className = 'yin-part';
-                    if (value === 6) part1.classList.add('old');
-
-                    const part2 = document.createElement('div');
-                    part2.className = 'yin-part';
-                    if (value === 6) part2.classList.add('old');
-
-                    yinContainer.appendChild(part1);
-                    yinContainer.appendChild(part2);
-                    yaoDisplay.appendChild(yinContainer);
-                } else {
-                    // 阳爻
-                    const yang = document.createElement('div');
-                    yang.className = 'yang-yao';
-                    if (value === 9) yang.classList.add('old');
-                    yaoDisplay.appendChild(yang);
-                }
-            }
-
-            // 根据二进制值查找卦名和卦序
-            function findGuaInfo(binary) {
-                const index = parseInt(binary, 2);
-                const name = binaryOrder[index];
-                const order = guaOrderMap[name] || 0;
-
-                return { name, order };
-            }
-
-            // 显示卦详细信息
-            function showGuaDetails(guaName, isOriginal, scroll) {
-                const details = guaTexts[guaName] || {};
-                const container = document.getElementById('guaDetailsContainer');
-                const title = document.getElementById('guaDetailsTitle');
-                const content = document.getElementById('guaDetailsContent');
-
-                title.textContent = `${guaName}卦详解`;
-                content.innerHTML = '';
-
-                // 添加卦辞
-                if (details.卦辞) {
-                    const div = document.createElement('div');
-                    div.className = 'gua-text';
-                    div.innerHTML = `<div class="gua-text-title">卦辞</div><div>${details.卦辞}</div>`;
-                    content.appendChild(div);
-                }
-
-                // 添加彖辞
-                if (details.彖) {
-                    const div = document.createElement('div');
-                    div.className = 'gua-text';
-                    div.innerHTML = `<div class="gua-text-title">彖辞</div><div>${details.彖}</div>`;
-                    content.appendChild(div);
-                }
-
-                // 添加象辞
-                if (details.象) {
-                    const div = document.createElement('div');
-                    div.className = 'gua-text';
-                    div.innerHTML = `<div class="gua-text-title">象辞</div><div>${details.象}</div>`;
-                    content.appendChild(div);
-                }
-
-                // 添加爻辞
-                if (details.爻辞) {
-                    const div = document.createElement('div');
-                    div.className = 'gua-text';
-                    div.innerHTML = `<div class="gua-text-title">爻辞</div>`;
-                    content.appendChild(div);
-
-                    details.爻辞.forEach((text, index) => {
-                        const yaoDiv = document.createElement('div');
-                        yaoDiv.className = 'yao-item';
-
-                        // 检查是否是变爻
-                        const isChanged = window.changeYaoIndexes && window.changeYaoIndexes.includes(index);
-                        // 检查是否是宜变之爻
-                        const isSpecial = window.specialYaoIndex === index;
-
-                        if (isChanged) yaoDiv.classList.add('changed');
-                        if (isSpecial && isChanged) yaoDiv.classList.add('special');
-
-                        yaoDiv.innerHTML = `<div class="yao-title">${text}</div>${details.爻象 && details.爻象[index] ? `<div>${details.爻象[index]}</div>` : ''}`;
-                        div.appendChild(yaoDiv);
-                    });
-                }
-
-                container.style.display = 'block';
-
-                // 滚动到详情区域
-                if (scroll) {
-                    container.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
-
-            // 显示卦结果
-            function showGuaResult() {
-                const resultBar = document.querySelector('.result-bar');
-
-                // 清除之前的结果信息
-                const extraInfos = resultBar.querySelectorAll('.result-info');
-                extraInfos.forEach(el => el.remove());
-
-                // 计算六爻营数总和
-                const total = guaArray.reduce((sum, value) => sum + value, 0);
-
-                // 显示营数总和
-                const totalInfo = document.createElement('span');
-                totalInfo.className = 'result-info';
-                totalInfo.textContent = `六爻营数之和: ${total}`;
-                resultBar.appendChild(totalInfo);
-
-                // 生成本卦二进制表示
-                let originalBinary = '';
-                for (let i = 0; i < 6; i++) {
-                    originalBinary += (guaArray[i] === 7 || guaArray[i] === 9) ? '1' : '0';
-                }
-
-                // 获取本卦信息
-                const originalInfo = findGuaInfo(originalBinary);
-
-                // 寻找动爻（6或9）
-                const hasChangeYao = guaArray.some(val => val === 6 || val === 9);
-
-                if (hasChangeYao) {
-                    // 计算余数：大衍之数55 - 营数总和
-                    let remainder = 55 - total;
-
-                    // 显示余数
-                    const remainderInfo = document.createElement('span');
-                    remainderInfo.className = 'result-info';
-                    remainderInfo.textContent = ` 余数: ${remainder}`;
-                    resultBar.appendChild(remainderInfo);
-
-                    // 确定宜变之爻位置
-                    // 从初爻(0)开始向上数，到上爻(5)折返
-                    let current = 0;
-                    let direction = 1; // 1:向上, -1:向下
-
-                    // 先数初爻（位置0）
-                    remainder--;
-
-                    while (remainder > 0) {
-                        // 到达上爻后折返向下
-                        if (current === 5 && direction === 1) {
-                            direction = -1;
-                            current = 4;
-                        }
-                        // 到达初爻后折返向上
-                        else if (current === 0 && direction === -1) {
-                            direction = 1;
-                            current = 1;
-                        }
-                        // 正常移动
-                        else {
-                            current += direction;
-                        }
-
-                        remainder--;
-                    }
-
-                    changeYaoIndex = current;
-
-                    // 显示宜变之爻
-                    const changeInfo = document.createElement('span');
-                    changeInfo.className = 'result-info change';
-                    const yaoNames = ['初', '二', '三', '四', '五', '上'];
-                    changeInfo.textContent = ` 宜变：${yaoNames[changeYaoIndex]}爻`;
-                    resultBar.appendChild(changeInfo);
-
-                    // 恢复原始之卦逻辑：所有动爻都变化
-                    let changedBinary = '';
-                    for (let i = 0; i < 6; i++) {
-                        const yaoValue = guaArray[i];
-                        if (yaoValue === 6) {
-                            changedBinary += '1';     // 老阴变阳
-                        } else if (yaoValue === 9) {
-                            changedBinary += '0';     // 老阳变阴
-                        } else if (yaoValue === 7) {
-                            changedBinary += '1';     // 少阳不变
-                        } else if (yaoValue === 8) {
-                            changedBinary += '0';     // 少阴不变
-                        }
-                    }
-
-                    // 获取之卦信息
-                    const changedInfo = findGuaInfo(changedBinary);
-
-                    // 在顶部显示结果（添加点击事件）
-                    resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span> 之 <span class="gua-link" data-gua="${changedInfo.name}" data-type="changed">${changedInfo.name}(${changedInfo.order})</span>`;
-                } else {
-                    // 全为7、8，无变爻
-                    resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span>（静爻）`;
-                }
-
-                // 存储变爻索引
-                window.changeYaoIndexes = [];
-                for (let i = 0; i < 6; i++) {
-                    if (guaArray[i] === 6 || guaArray[i] === 9) {
-                        window.changeYaoIndexes.push(i);
-                    }
-                }
-                window.specialYaoIndex = changeYaoIndex; // 宜变之爻
-
-                // 添加点击事件
-                document.querySelectorAll('.gua-link').forEach(link => {
-                    link.addEventListener('click', function () {
-                        const guaName = this.getAttribute('data-gua');
-                        const type = this.getAttribute('data-type');
-                        showGuaDetails(guaName, type === 'original', true);
-                    });
-                });
-
-                // 标记宜变之爻
-                if (changeYaoIndex !== -1 && (guaArray[changeYaoIndex] === 6 || guaArray[changeYaoIndex] === 9)) {
-                    const changeMarker = document.createElement('div');
-                    changeMarker.className = 'change-marker';
-                    changeMarker.textContent = '变';
-                    document.getElementById(`yaoDisplay${changeYaoIndex}`).appendChild(changeMarker);
-                }
-
-                // 显示本卦卦爻辞
-                showGuaDetails(originalInfo.name, true, false);
-            }
-
-            // 根据卦名获取二进制表示
-            function getBinaryForGua(guaName) {
-                const index = binaryOrder.indexOf(guaName);
-                if (index === -1) return null;
-
-                // 将索引转换为6位二进制字符串
-                return index.toString(2).padStart(6, '0');
-            }
-
-            // 应用选择的卦象
-            function applySelectedGua() {
-                const originalGua = originalGuaSelect.value;
-                let changedGua = changedGuaSelect.value;
-
-                if (!originalGua) {
-                    alert('请选择本卦');
-                    return;
-                }
-
-                // 处理之卦选项
-                if (changedGua === "same") {
-                    changedGua = originalGua;
-                } else if (!changedGua) {
-                    changedGua = originalGua;
-                }
-
-                // 获取本卦和之卦的二进制表示
-                const originalBinary = getBinaryForGua(originalGua);
-                const changedBinary = getBinaryForGua(changedGua);
-
-                if (!originalBinary || !changedBinary) {
-                    alert('无法找到卦象信息');
-                    return;
-                }
-
-                // 计算每个爻的营数
-                guaArray = [];
-                for (let i = 0; i < 6; i++) {
-                    const originalBit = originalBinary[i];
-                    const changedBit = changedBinary[i];
-
-                    if (originalBit === '0' && changedBit === '0') {
-                        guaArray[i] = 8; // 少阴
-                    } else if (originalBit === '0' && changedBit === '1') {
-                        guaArray[i] = 6; // 老阴（变爻）
-                    } else if (originalBit === '1' && changedBit === '0') {
-                        guaArray[i] = 9; // 老阳（变爻）
-                    } else if (originalBit === '1' && changedBit === '1') {
-                        guaArray[i] = 7; // 少阳
-                    }
-                }
-
-                // 绘制卦形
-                for (let i = 0; i < 6; i++) {
-                    drawYao(i, guaArray[i]);
-                }
-
-                // 禁用所有爻按钮
-                for (let i = 0; i < 6; i++) {
-                    document.getElementById(`yaoBtn${i}`).disabled = true;
-                }
-
-                // 清空过程列表
-                processList.innerHTML = '';
-
-                // 显示卦结果
-                showGuaResult();
-            }
-
-            // 重置
-            function reset() {
-                currentYao = 0;
-                guaArray = [];
-                changeYaoIndex = -1;
-
-                // 重置选择器
-                originalGuaSelect.value = '';
-                changedGuaSelect.value = '';
-
-                createGrasses();
-                initYaoRows();
-                document.getElementById('guaDetailsContainer').style.display = 'none';
-            }
-
-            // 事件监听
-            restartBtn.addEventListener('click', reset);
-            applyBtn.addEventListener('click', applySelectedGua);
-
-            // 初始化
-            createGrasses();
-            initYaoRows();
-            populateGuaSelects();
-        });
-    </script>
+	<div class="header">
+		<h1 class="title">大衍筮法</h1>
+		<div class="subtitle">周易古法占筮 · 十有八变而成卦</div>
+	</div>
+
+	<div class="main-wrapper">
+		<div class="content-column">
+			<!--卦象结果-->
+			<div class="result-bar">
+				<div class="result-text" id="resultText">-</div>
+			</div>
+
+			<div class="container">
+				<div class="grass-counter" id="grassCounter">蓍草: 50根</div>
+
+				<div class="main-content">
+					<div class="gua-container" id="guaContainer">
+						<!-- 爻行将由JavaScript动态生成（从下到上） -->
+					</div>
+
+					<div class="button-container">
+						<button class="restart-btn" id="restartBtn">
+							重占
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- 控制面板 -->
+			<div class="control-panel">
+				<div class="control-group">
+					<span class="control-label">本卦:</span>
+					<select id="originalGua" class="gua-select">
+						<option value="">--请选择本卦--</option>
+						<!-- 卦名选项将由JavaScript动态生成 -->
+					</select>
+				</div>
+
+				<div class="control-group">
+					<span class="control-label">之卦:</span>
+					<select id="changedGua" class="gua-select">
+						<option value="same">同本卦（静卦）</option>
+						<!-- 卦名选项将由JavaScript动态生成 -->
+					</select>
+				</div>
+
+				<button class="apply-btn" id="applyBtn">手动设卦</button>
+			</div>
+
+			<div class="process-panel">
+				<div class="panel-title">占筮过程</div>
+				<div class="process-list" id="processList">
+					<!-- 过程列表将由JavaScript动态生成 -->
+				</div>
+			</div>
+
+		</div>
+
+		<div class="gua-details-container" id="guaDetailsContainer" style="display: none;">
+			<div class="gua-details-header">
+				<h3 id="guaDetailsTitle"></h3>
+			</div>
+			<div class="gua-details-content" id="guaDetailsContent"></div>
+		</div>
+	</div>
+
+	<div class="explanation">
+		<p>大衍筮法源自《周易·系辞》，使用五十根蓍草，取出一根不用，象征太极。经过"分二"、"挂一"、"揲四"、"归奇"四步为一变，三变成一爻，十八变成一卦。</p>
+	</div>
+	<div class="footer">
+		<p>大衍之数五十，其用四十有九。分而为二以象两，挂一以象三，揲之以四以象四时，归奇于扐以象闰。</p>
+		<p>——《周易·系辞上》</p>
+	</div>
+	<script src="text.js"></script>
+	<script>
+		// 卦名数据
+		const guaData = [
+			"乾", "坤", "屯", "蒙", "需", "讼", "师", "比",
+			"小畜", "履", "泰", "否", "同人", "大有", "谦", "豫",
+			"随", "蛊", "临", "观", "噬嗑", "贲", "剥", "复",
+			"无妄", "大畜", "颐", "大过", "坎", "离", "咸", "恒",
+			"遁", "大壮", "晋", "明夷", "家人", "睽", "蹇", "解",
+			"损", "益", "夬", "姤", "萃", "升", "困", "井",
+			"革", "鼎", "震", "艮", "渐", "归妹", "丰", "旅",
+			"巽", "兑", "涣", "节", "中孚", "小过", "既济", "未济"
+		];
+
+		// 卦序查找表
+		const guaOrderMap = {};
+		guaData.forEach((name, index) => {
+			guaOrderMap[name] = index + 1; // 卦序从1开始
+		});
+
+		// 二进制卦序映射
+		const binaryOrder = [
+			"坤", "剥", "比", "观", "豫", "晋", "萃", "否",
+			"谦", "艮", "蹇", "渐", "小过", "旅", "咸", "遁",
+			"师", "蒙", "坎", "涣", "解", "未济", "困", "讼",
+			"升", "蛊", "井", "巽", "恒", "鼎", "大过", "姤",
+			"复", "颐", "屯", "益", "震", "噬嗑", "随", "无妄",
+			"明夷", "贲", "既济", "家人", "丰", "离", "革", "同人",
+			"临", "损", "节", "中孚", "归妹", "睽", "兑", "履",
+			"泰", "大畜", "需", "小畜", "大壮", "大有", "夬", "乾"
+		];
+
+		document.addEventListener('DOMContentLoaded', function () {
+			const guaContainer = document.getElementById('guaContainer');
+			const grassCounter = document.getElementById('grassCounter');
+			const processList = document.getElementById('processList');
+			const resultText = document.getElementById('resultText');
+			const restartBtn = document.getElementById('restartBtn');
+			const applyBtn = document.getElementById('applyBtn');
+			const originalGuaSelect = document.getElementById('originalGua');
+			const changedGuaSelect = document.getElementById('changedGua');
+			const detailsTitle = document.getElementById('guaDetailsTitle');
+
+			// 创建50根蓍草对象
+			let grasses = [];
+			let currentYao = 0;
+			let guaArray = [];
+			let changeYaoIndex = -1;
+			let processRecords = []; // 存储占筮过程记录
+
+			// 填充卦名下拉列表
+			function populateGuaSelects() {
+				guaData.forEach((gua, index) => {
+					const option1 = document.createElement('option');
+					option1.value = gua;
+					option1.textContent = `${index + 1}.${gua}`;
+					originalGuaSelect.appendChild(option1);
+
+					const option2 = document.createElement('option');
+					option2.value = gua;
+					option2.textContent = `${index + 1}.${gua}`;
+					changedGuaSelect.appendChild(option2);
+				});
+			}
+
+			// 创建蓍草
+			function createGrasses() {
+				grasses = [];
+				for (let i = 0; i < 50; i++) {
+					grasses.push({
+						id: i,
+						used: false
+					});
+				}
+				updateGrassCounter();
+			}
+
+			// 更新蓍草计数器
+			function updateGrassCounter() {
+				const usedCount = grasses.filter(g => g.used).length;
+				grassCounter.textContent = `蓍草: ${50 - usedCount}根`;
+			}
+
+			// 初始化爻行
+			function initYaoRows() {
+				guaContainer.innerHTML = '';
+				processRecords = [];
+				processList.innerHTML = '';
+				resultText.textContent = '-';
+
+				// 清除之前的结果信息
+				const resultBar = document.querySelector('.result-bar');
+				const extraInfos = resultBar.querySelectorAll('.result-info');
+				extraInfos.forEach(el => el.remove());
+
+				// 从5（上爻）到0（初爻）倒序创建
+				for (let i = 5; i >= 0; i--) {
+					const yaoRow = document.createElement('div');
+					yaoRow.className = 'yao-row';
+					yaoRow.id = `yaoRow${i}`;
+
+					const yaoDisplay = document.createElement('div');
+					yaoDisplay.className = 'yao-display';
+					yaoDisplay.id = `yaoDisplay${i}`;
+
+					const yaoButton = document.createElement('button');
+					yaoButton.className = 'yao-button';
+					yaoButton.id = `yaoBtn${i}`;
+
+					// 设置按钮文本（从初到上）
+					const yaoNames = ['初', '二', '三', '四', '五', '上'];
+					yaoButton.textContent = `占${yaoNames[i]}爻`;
+
+					// 添加点击事件
+					yaoButton.addEventListener('click', () => generateYao(i));
+
+					// 只有初爻（i=0）按钮初始可点击
+					yaoButton.disabled = i !== 0;
+
+					yaoRow.appendChild(yaoDisplay);
+					yaoRow.appendChild(yaoButton);
+					guaContainer.appendChild(yaoRow);
+				}
+			}
+
+			// 更新占筮过程列表
+			function updateProcessList(yaoIndex, steps, finalValue) {
+				const yaoNames = ['初', '二', '三', '四', '五', '上'];
+				const yaoType = getYaoType(finalValue);
+
+				const processItem = document.createElement('div');
+				processItem.className = 'process-item';
+
+				processItem.innerHTML = `
+					<span class="yao-name">${yaoNames[yaoIndex]}爻</span>
+					<span>${steps[0]}策</span>
+					<span>${steps[1]}策</span>
+					<span>${steps[2]}策</span>
+					<span class="yao-value">${finalValue} (${yaoType})</span>
+				`;
+
+				processList.appendChild(processItem);
+				processRecords.push({
+					yaoIndex,
+					steps,
+					finalValue,
+					yaoType
+				});
+			}
+
+			// 大衍筮法生成一爻
+			function generateYao(yaoIndex) {
+				// 重置蓍草使用状态（除太极草外）
+				grasses.forEach(g => {
+					if (g.id !== 0) g.used = false;
+				});
+
+				// 使用49根蓍草（排除太极草）
+				let availableGrasses = grasses.filter(g => !g.used && g.id !== 0);
+				let steps = [];
+
+				// 模拟三变过程
+				setTimeout(() => {
+					// 第一变
+					const result1 = performDayanStep(availableGrasses, 49);
+					steps.push(result1.remaining);
+					updateGrassCounter();
+
+					setTimeout(() => {
+						// 第二变
+						const result2 = performDayanStep(availableGrasses, result1.remaining);
+						steps.push(result2.remaining);
+						updateGrassCounter();
+
+						setTimeout(() => {
+							// 第三变
+							const result3 = performDayanStep(availableGrasses, result2.remaining);
+							steps.push(result3.remaining);
+							updateGrassCounter();
+
+							// 计算最终结果
+							const yaoValue = result3.remaining / 4;
+
+							// 保存爻信息
+							guaArray[yaoIndex] = yaoValue;
+
+							// 更新占筮过程
+							updateProcessList(yaoIndex, steps, yaoValue);
+
+							// 绘制爻
+							drawYao(yaoIndex, yaoValue);
+
+							// 禁用当前爻按钮
+							const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
+							currentBtn.disabled = true;
+
+							// 如果是最后一爻（上爻，i=5），显示卦结果
+							if (yaoIndex === 5) {
+								setTimeout(showGuaResult, 500);
+							}
+							// 启用下一爻按钮（如果不是最后一爻）
+							else {
+								const nextYaoIndex = yaoIndex + 1;
+								const nextBtn = document.getElementById(`yaoBtn${nextYaoIndex}`);
+								nextBtn.disabled = false;
+							}
+						}, 200);
+					}, 200);
+				}, 200);
+			}
+
+			// 执行大衍筮法的一变
+			function performDayanStep(availableGrasses, startingCount) {
+				// 获取可用的蓍草
+				let unusedGrasses = availableGrasses.filter(g => !g.used);
+
+				// 随机排序
+				shuffleArray(unusedGrasses);
+
+				// 分二：随机分成两部分
+				const part1Count = Math.floor(Math.random() * (startingCount - 1)) + 1;
+				const part1 = unusedGrasses.slice(0, part1Count);
+				const part2 = unusedGrasses.slice(part1Count, part1Count + startingCount - part1Count);
+
+				// 挂一：从右边取出一根（随机选择）
+				const rightGrass = part2[Math.floor(Math.random() * part2.length)];
+				rightGrass.used = true;
+				const rightAfterRemove = part2.filter(g => g !== rightGrass);
+
+				// 揲四：分别除以4取余数
+				const remainder1 = part1.length % 4 || 4;
+				const remainder2 = rightAfterRemove.length % 4 || 4;
+
+				// 随机选择余数草
+				const remainderGrasses1 = shuffleArray(part1.slice(0, remainder1));
+				const remainderGrasses2 = shuffleArray(rightAfterRemove.slice(0, remainder2));
+
+				// 标记使用的蓍草
+				remainderGrasses1.forEach(g => g.used = true);
+				remainderGrasses2.forEach(g => g.used = true);
+				rightGrass.used = true;
+
+				// 归奇：计算剩余策数
+				const removed = 1 + remainder1 + remainder2;
+				const remaining = startingCount - removed;
+
+				return { remaining };
+			}
+
+			// 随机打乱数组
+			function shuffleArray(array) {
+				for (let i = array.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					[array[i], array[j]] = [array[j], array[i]];
+				}
+				return array;
+			}
+
+			// 获取爻的类型
+			function getYaoType(value) {
+				if (value === 6) return '老阴';
+				if (value === 7) return '少阳';
+				if (value === 8) return '少阴';
+				if (value === 9) return '老阳';
+				return '';
+			}
+
+			// 绘制爻（阴爻中间断开）
+			function drawYao(yaoIndex, value) {
+				const yaoDisplay = document.getElementById(`yaoDisplay${yaoIndex}`);
+				yaoDisplay.innerHTML = '';
+
+				// 添加爻值显示
+				const valueText = document.createElement('div');
+				valueText.style.position = 'absolute';
+				valueText.style.left = '15px';
+				valueText.style.color = '#f0c060';
+				valueText.style.fontWeight = 'bold';
+				valueText.style.fontSize = '1.2rem';
+				valueText.textContent = value;
+				yaoDisplay.appendChild(valueText);
+
+				if (value === 6 || value === 8) {
+					// 阴爻（中间断开）
+					const yinContainer = document.createElement('div');
+					yinContainer.className = 'yin-yao';
+
+					const part1 = document.createElement('div');
+					part1.className = 'yin-part';
+					if (value === 6) part1.classList.add('old');
+
+					const part2 = document.createElement('div');
+					part2.className = 'yin-part';
+					if (value === 6) part2.classList.add('old');
+
+					yinContainer.appendChild(part1);
+					yinContainer.appendChild(part2);
+					yaoDisplay.appendChild(yinContainer);
+				} else {
+					// 阳爻
+					const yang = document.createElement('div');
+					yang.className = 'yang-yao';
+					if (value === 9) yang.classList.add('old');
+					yaoDisplay.appendChild(yang);
+				}
+			}
+
+			// 根据二进制值查找卦名和卦序
+			function findGuaInfo(binary) {
+				const index = parseInt(binary, 2);
+				const name = binaryOrder[index];
+				const order = guaOrderMap[name] || 0;
+
+				return { name, order };
+			}
+
+			// 显示卦详细信息
+			function showGuaDetails(guaName, isOriginal, scroll) {
+				const details = guaTexts[guaName] || {};
+				const container = document.getElementById('guaDetailsContainer');
+				const title = document.getElementById('guaDetailsTitle');
+				const content = document.getElementById('guaDetailsContent');
+
+				title.textContent = `${guaName}卦详解`;
+				content.innerHTML = '';
+
+				// 添加卦辞
+				if (details.卦辞) {
+					const div = document.createElement('div');
+					div.className = 'gua-text';
+					div.innerHTML = `<div class="gua-text-title">卦辞</div><div>${details.卦辞}</div>`;
+					content.appendChild(div);
+				}
+
+				// 添加彖辞
+				if (details.彖) {
+					const div = document.createElement('div');
+					div.className = 'gua-text';
+					div.innerHTML = `<div class="gua-text-title">彖辞</div><div>${details.彖}</div>`;
+					content.appendChild(div);
+				}
+
+				// 添加象辞
+				if (details.象) {
+					const div = document.createElement('div');
+					div.className = 'gua-text';
+					div.innerHTML = `<div class="gua-text-title">象辞</div><div>${details.象}</div>`;
+					content.appendChild(div);
+				}
+
+				// 添加爻辞
+				if (details.爻辞) {
+					const div = document.createElement('div');
+					div.className = 'gua-text';
+					div.innerHTML = `<div class="gua-text-title">爻辞</div>`;
+					content.appendChild(div);
+
+					details.爻辞.forEach((text, index) => {
+						const yaoDiv = document.createElement('div');
+						yaoDiv.className = 'yao-item';
+
+						// 检查是否是变爻
+						const isChanged = window.changeYaoIndexes && window.changeYaoIndexes.includes(index);
+						// 检查是否是宜变之爻
+						const isSpecial = window.specialYaoIndex === index;
+
+						if (isChanged) yaoDiv.classList.add('changed');
+						if (isSpecial && isChanged) yaoDiv.classList.add('special');
+
+						yaoDiv.innerHTML = `<div class="yao-title">${text}</div>${details.爻象 && details.爻象[index] ? `<div>${details.爻象[index]}</div>` : ''}`;
+						div.appendChild(yaoDiv);
+					});
+				}
+
+				container.style.display = 'block';
+				setTimeout(() => {
+					container.classList.add('show'); // 延迟触发显示动画
+				}, 10);
+				const mainWrapper = document.querySelector('.main-wrapper');
+				mainWrapper.classList.add('show-details');
+
+				// 滚动到详情区域
+				if (scroll) {
+					container.scrollIntoView({ behavior: 'smooth' });
+				}
+			}
+
+			// 显示卦结果
+			function showGuaResult() {
+				const resultBar = document.querySelector('.result-bar');
+
+				// 清除之前的结果信息
+				const extraInfos = resultBar.querySelectorAll('.result-info');
+				extraInfos.forEach(el => el.remove());
+
+				// 计算六爻营数总和
+				const total = guaArray.reduce((sum, value) => sum + value, 0);
+
+				// 显示营数总和
+				const totalInfo = document.createElement('span');
+				totalInfo.className = 'result-info';
+				totalInfo.textContent = `六爻营数之和: ${total}`;
+				resultBar.appendChild(totalInfo);
+
+				// 生成本卦二进制表示
+				let originalBinary = '';
+				for (let i = 0; i < 6; i++) {
+					originalBinary += (guaArray[i] === 7 || guaArray[i] === 9) ? '1' : '0';
+				}
+
+				// 获取本卦信息
+				const originalInfo = findGuaInfo(originalBinary);
+
+				// 寻找动爻（6或9）
+				const hasChangeYao = guaArray.some(val => val === 6 || val === 9);
+
+				if (hasChangeYao) {
+					// 计算余数：大衍之数55 - 营数总和
+					let remainder = 55 - total;
+
+					// 显示余数
+					const remainderInfo = document.createElement('span');
+					remainderInfo.className = 'result-info';
+					remainderInfo.textContent = ` 余数: ${remainder}`;
+					resultBar.appendChild(remainderInfo);
+
+					// 确定宜变之爻位置
+					// 从初爻(0)开始向上数，到上爻(5)折返
+					let current = 0;
+					let direction = 1; // 1:向上, -1:向下
+
+					// 先数初爻（位置0）
+					remainder--;
+
+					while (remainder > 0) {
+						// 到达上爻后折返向下
+						if (current === 5 && direction === 1) {
+							direction = -1;
+							current = 4;
+						}
+						// 到达初爻后折返向上
+						else if (current === 0 && direction === -1) {
+							direction = 1;
+							current = 1;
+						}
+						// 正常移动
+						else {
+							current += direction;
+						}
+
+						remainder--;
+					}
+
+					changeYaoIndex = current;
+
+					// 显示宜变之爻
+					const changeInfo = document.createElement('span');
+					changeInfo.className = 'result-info change';
+					const yaoNames = ['初', '二', '三', '四', '五', '上'];
+					changeInfo.textContent = ` 宜变：${yaoNames[changeYaoIndex]}爻`;
+					resultBar.appendChild(changeInfo);
+
+					// 计算之卦
+					let changedBinary = '';
+					for (let i = 0; i < 6; i++) {
+						const yaoValue = guaArray[i];
+						switch (yaoValue){
+							case 6: // 老阴变阳
+							case 7: // 少阳不变
+								changedBinary += '1';
+								break;
+							case 8: // 少阴不变
+							case 9: // 老阳变阴
+								changedBinary += '0';
+								break;
+						}
+					}
+
+					// 获取之卦信息
+					const changedInfo = findGuaInfo(changedBinary);
+
+					// 在顶部显示结果（添加点击事件）
+					resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span> 之 <span class="gua-link" data-gua="${changedInfo.name}" data-type="changed">${changedInfo.name}(${changedInfo.order})</span>`;
+				} else {
+					// 全为7、8，无变爻
+					resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span>（静爻）`;
+				}
+
+				// 存储变爻索引
+				window.changeYaoIndexes = [];
+				for (let i = 0; i < 6; i++) {
+					if (guaArray[i] === 6 || guaArray[i] === 9) {
+						window.changeYaoIndexes.push(i);
+					}
+				}
+				window.specialYaoIndex = changeYaoIndex; // 宜变之爻
+
+				// 添加点击事件
+				document.querySelectorAll('.gua-link').forEach(link => {
+					link.addEventListener('click', function () {
+						const guaName = this.getAttribute('data-gua');
+						const type = this.getAttribute('data-type');
+						showGuaDetails(guaName, type === 'original', true);
+					});
+				});
+
+				// 标记宜变之爻
+				if (changeYaoIndex !== -1 && (guaArray[changeYaoIndex] === 6 || guaArray[changeYaoIndex] === 9)) {
+					const changeMarker = document.createElement('div');
+					changeMarker.className = 'change-marker';
+					changeMarker.textContent = '变';
+					document.getElementById(`yaoDisplay${changeYaoIndex}`).appendChild(changeMarker);
+				}
+
+				// 显示本卦卦爻辞
+				showGuaDetails(originalInfo.name, true, false);
+			}
+
+			// 根据卦名获取二进制表示
+			function getBinaryForGua(guaName) {
+				const index = binaryOrder.indexOf(guaName);
+				if (index === -1) return null;
+
+				// 将索引转换为6位二进制字符串
+				return index.toString(2).padStart(6, '0');
+			}
+
+			// 应用选择的卦象
+			function applySelectedGua() {
+				const originalGua = originalGuaSelect.value;
+				let changedGua = changedGuaSelect.value;
+
+				if (!originalGua) {
+					alert('请选择本卦');
+					return;
+				}
+
+				// 处理之卦选项
+				if (changedGua === "same") {
+					changedGua = originalGua;
+				} else if (!changedGua) {
+					changedGua = originalGua;
+				}
+
+				// 获取本卦和之卦的二进制表示
+				const originalBinary = getBinaryForGua(originalGua);
+				const changedBinary = getBinaryForGua(changedGua);
+
+				if (!originalBinary || !changedBinary) {
+					alert('无法找到卦象信息');
+					return;
+				}
+
+				// 计算每个爻的营数
+				guaArray = [];
+				for (let i = 0; i < 6; i++) {
+					const originalBit = originalBinary[i];
+					const changedBit = changedBinary[i];
+
+					if (originalBit === '0' && changedBit === '0') {
+						guaArray[i] = 8; // 少阴
+					} else if (originalBit === '0' && changedBit === '1') {
+						guaArray[i] = 6; // 老阴（变爻）
+					} else if (originalBit === '1' && changedBit === '0') {
+						guaArray[i] = 9; // 老阳（变爻）
+					} else if (originalBit === '1' && changedBit === '1') {
+						guaArray[i] = 7; // 少阳
+					}
+				}
+
+				// 绘制卦形
+				for (let i = 0; i < 6; i++) {
+					drawYao(i, guaArray[i]);
+				}
+
+				// 禁用所有爻按钮
+				for (let i = 0; i < 6; i++) {
+					document.getElementById(`yaoBtn${i}`).disabled = true;
+				}
+
+				// 清空过程列表
+				processList.innerHTML = '';
+
+				// 显示卦结果
+				showGuaResult();
+			}
+
+			function scrollToResult() {
+				resultText.scrollIntoView({ behavior: "smooth" });
+			}
+
+			// 重置
+			function reset() {
+				currentYao = 0;
+				guaArray = [];
+				changeYaoIndex = -1;
+
+				// 重置选择器
+				originalGuaSelect.selectedIndex = 0;
+				changedGuaSelect.selectedIndex = 0;
+
+				createGrasses();
+				initYaoRows();
+				document.getElementById('guaDetailsContainer').style.display = 'none';
+				const mainWrapper = document.querySelector('.main-wrapper');
+				mainWrapper.classList.remove('show-details');
+				document.querySelector('.gua-details-container').classList.remove('show');
+			}
+
+			// 事件监听
+			restartBtn.addEventListener('click', reset);
+			applyBtn.addEventListener('click', applySelectedGua);
+			detailsTitle.addEventListener('click', scrollToResult);
+
+			// 初始化
+			createGrasses();
+			initYaoRows();
+			populateGuaSelects();
+		});
+	</script>
 </body>
 
 </html>
