@@ -861,6 +861,10 @@
 
 			// 大衍筮法生成一爻
 			function generateYao(yaoIndex) {
+				// 禁用当前爻按钮
+				const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
+				currentBtn.disabled = true;
+
 				// 重置蓍草使用状态（除太极草外）
 				grasses.forEach(g => {
 					if (g.id !== 0) g.used = false;
@@ -900,10 +904,6 @@
 
 							// 绘制爻
 							drawYao(yaoIndex, yaoValue);
-
-							// 禁用当前爻按钮
-							const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
-							currentBtn.disabled = true;
 
 							// 如果是最后一爻（上爻，i=5），显示卦结果
 							if (yaoIndex === 5) {
