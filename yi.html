@@ -396,13 +396,13 @@
 			width: 100%;
 		}
 
-		.restart-btn {
-			padding: 10px 35px;
+		.btn {
+			padding: 10px 25px;
 			font-size: 1.1rem;
 			background: linear-gradient(to right, #8a6d3b, #d4b483, #8a6d3b);
 			color: #1a1a1a;
 			border: none;
-			border-radius: 30px;
+			border-radius: 20px;
 			cursor: pointer;
 			transition: all 0.4s ease;
 			font-weight: bold;
@@ -410,7 +410,7 @@
 			box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6);
 		}
 
-		.restart-btn:hover {
+		.btn:hover {
 			transform: translateY(-2px);
 			box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
 			background: linear-gradient(to right, #d4b483, #f0c060, #d4b483);
@@ -509,6 +509,175 @@
 			margin-bottom: 5px;
 		}
 
+		.modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.7);
+		}
+
+		.modal-content {
+			background: linear-gradient(135deg, #0c151f, #1a2838);
+			margin: 5% auto;
+			padding: 20px;
+			border: 1px solid rgba(100, 80, 60, 0.4);
+			border-radius: 15px;
+			width: 90%;
+			max-width: 800px;
+			max-height: 80vh;
+			overflow-y: auto;
+			box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+			position: relative;
+		}
+
+		.modal-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding-bottom: 10px;
+			border-bottom: 1px solid rgba(100, 80, 60, 0.4);
+		}
+
+		.close {
+			color: #d4b483;
+			font-size: 28px;
+			font-weight: bold;
+			cursor: pointer;
+		}
+
+		.close:hover {
+			color: #f0c060;
+		}
+
+		.modal-body {
+			padding: 15px 0;
+		}
+
+		#import-export {
+			display: flex;
+			justify-content: flex-end;
+			gap: 10px;
+			margin-bottom: 15px;
+		}
+
+		#import-export button {
+			padding: 8px 15px;
+			background: linear-gradient(to right, #8a6d3b, #d4b483);
+			color: #1a1a1a;
+			border: none;
+			border-radius: 20px;
+			cursor: pointer;
+			font-weight: bold;
+		}
+
+		#historyList {
+			list-style: none;
+			overflow-y: auto;
+			max-height: 80vh;
+		}
+
+		.history-item {
+			background: rgba(20, 30, 40, 0.85);
+			border-radius: 8px;
+			padding: 15px;
+			margin: 10px 0;
+			border: 1px solid rgba(100, 80, 60, 0.4);
+			cursor: pointer;
+			transition: all 0.3s ease;
+		}
+
+		.history-item:hover {
+			background: rgba(30, 40, 50, 0.95);
+			transform: translateY(-2px);
+		}
+
+		.history-item .time {
+			color: #f0c060;
+			font-size: 0.9rem;
+			margin-bottom: 5px;
+		}
+
+		.history-item .result {
+			font-size: 1.2rem;
+			color: #d4b483;
+			margin-bottom: 5px;
+		}
+
+		.history-item .event {
+			color: #a9a085;
+			font-style: italic;
+			margin-bottom: 5px;
+		}
+
+		.history-item .note {
+			color: #8a6d3b;
+			font-size: 0.9rem;
+		}
+
+		.delete-btn {
+			float: right;
+			background: #c44;
+			color: white;
+			border: none;
+			border-radius: 4px;
+			padding: 2px 8px;
+			cursor: pointer;
+		}
+		.input-group {
+			margin-bottom: 15px;
+		}
+
+		.input-group label {
+			display: block;
+			margin-bottom: 5px;
+			color: #d4b483;
+		}
+
+		.input-group input,
+		.input-group textarea {
+			width: 100%;
+			padding: 10px;
+			background: rgba(20, 30, 40, 0.85);
+			border: 1px solid #8a6d3b;
+			border-radius: 6px;
+			color: #e0d6b9;
+			font-family: "SimSun", "宋体", serif;
+		}
+
+		.input-group textarea {
+			min-height: 80px;
+			resize: vertical;
+		}
+
+		.modal-buttons {
+			display: flex;
+			justify-content: flex-end;
+			gap: 10px;
+			margin-top: 15px;
+		}
+
+		.modal-buttons button {
+			padding: 8px 20px;
+			border-radius: 20px;
+			cursor: pointer;
+			font-weight: bold;
+		}
+
+		#confirmSave {
+			background: linear-gradient(to right, #8a6d3b, #d4b483);
+			color: #1a1a1a;
+			border: none;
+		}
+
+		#cancelSave {
+			background: transparent;
+			color: #d4b483;
+			border: 1px solid #8a6d3b;
+		}
 		/* 宽屏布局 - 最小宽度 1000px */
 		@media (min-width: 1000px) {
 			.main-wrapper {
@@ -631,6 +800,10 @@
 				width: 80%;
 				margin-top: 10px;
 			}
+
+			.history-item .event {
+				display: block;
+			}
 		}
 	</style>
 </head>
@@ -657,9 +830,9 @@
 					</div>
 
 					<div class="button-container">
-						<button class="restart-btn" id="restartBtn">
-							重占
-						</button>
+						<button class="btn" id="restartBtn">重占</button>
+						<button class="btn" id="saveBtn" style="display: none; margin-left: 15px;">保存</button>
+						<button class="btn" id="loadBtn" style="margin-left: 15px;">加载</button>
 					</div>
 				</div>
 			</div>
@@ -709,6 +882,45 @@
 		<p>大衍之数五十，其用四十有九。分而为二以象两，挂一以象三，揲之以四以象四时，归奇于扐以象闰。</p>
 		<p>——《周易·系辞上》</p>
 	</div>
+	<div id="historyModal" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>占筮历史记录</h3>
+				<span class="close">&times;</span>
+			</div>
+			<div class="modal-body">
+				<div class="import-export">
+					<input type="file" id="importFile" accept=".json" style="display:none">
+					<button class="btn" id="importBtn">导入</button>
+					<button class="btn" id="exportBtn">导出</button>
+				</div>
+				<ul id="historyList"></ul>
+			</div>
+		</div>
+	</div>
+	<div id="saveModal" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>保存占筮记录</h3>
+				<span class="close-save">&times;</span>
+			</div>
+			<div class="modal-body">
+				<div class="input-group">
+					<label for="eventInput">占筮事项:</label>
+					<input type="text" id="eventInput" placeholder="请输入占筮事项">
+				</div>
+				<div class="input-group">
+					<label for="noteInput">备注:</label>
+					<textarea id="noteInput" placeholder="请输入备注（可选）"></textarea>
+				</div>
+				<div class="modal-buttons">
+					<button id="confirmSave">保存</button>
+					<button id="cancelSave">取消</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	<script src="text.js"></script>
 	<script>
 		// 卦名数据
@@ -752,12 +964,28 @@
 			const changedGuaSelect = document.getElementById('changedGua');
 			const detailsTitle = document.getElementById('guaDetailsTitle');
 
+			const saveBtn = document.getElementById('saveBtn');
+			const loadBtn = document.getElementById('loadBtn');
+			const historyModal = document.getElementById('historyModal');
+			const closeModal = document.querySelector('.close');
+			const historyList = document.getElementById('historyList');
+			const exportBtn = document.getElementById('exportBtn');
+			const importBtn = document.getElementById('importBtn');
+			const importFile = document.getElementById('importFile');
+			const saveModal = document.getElementById('saveModal');
+			const closeSave = document.querySelector('.close-save');
+			const confirmSave = document.getElementById('confirmSave');
+			const cancelSave = document.getElementById('cancelSave');
+			const eventInput = document.getElementById('eventInput');
+			const noteInput = document.getElementById('noteInput');
+
 			// 创建50根蓍草对象
 			let grasses = [];
 			let currentYao = 0;
 			let guaArray = [];
 			let changeYaoIndex = -1;
 			let processRecords = []; // 存储占筮过程记录
+			let startTime = null; // 记录开始占筮的时间
 
 			// 填充卦名下拉列表
 			function populateGuaSelects() {
@@ -865,6 +1093,10 @@
 				const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
 				currentBtn.disabled = true;
 
+				// 如果是初爻（第一次点击），记录开始时间
+				if (yaoIndex === 0) {
+					startTime = new Date();
+				}
 				// 重置蓍草使用状态（除太极草外）
 				grasses.forEach(g => {
 					if (g.id !== 0) g.used = false;
@@ -1225,6 +1457,8 @@
 
 				// 显示本卦卦爻辞
 				showGuaDetails(originalInfo.name, true, false);
+				// 显示保存按钮
+				showSaveButton();
 			}
 
 			// 根据卦名获取二进制表示
@@ -1300,11 +1534,235 @@
 				resultText.scrollIntoView({ behavior: "smooth" });
 			}
 
+			// 历史记录数据结构
+			let historyRecords = JSON.parse(localStorage.getItem('dayanHistory')) || [];
+			let currentRecordId = null;
+
+			// 显示保存按钮
+			function showSaveButton() {
+				saveBtn.style.display = 'inline-block';
+			}
+
+			// 加载记录
+			loadBtn.addEventListener('click', () => {
+				renderHistoryList();
+				historyModal.style.display = 'block';
+			});
+
+			// 关闭模态框
+			closeModal.addEventListener('click', () => {
+				historyModal.style.display = 'none';
+			});
+
+			// 导出记录
+			exportBtn.addEventListener('click', () => {
+				const dataStr = JSON.stringify(historyRecords, null, 2);
+				const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+				
+				const exportFileDefaultName = `大衍筮法历史记录_${new Date().toISOString().slice(0,10)}.json`;
+				
+				const linkElement = document.createElement('a');
+				linkElement.setAttribute('href', dataUri);
+				linkElement.setAttribute('download', exportFileDefaultName);
+				linkElement.click();
+			});
+
+			// 导入记录
+			importBtn.addEventListener('click', () => {
+				importFile.click();
+			});
+
+			importFile.addEventListener('change', (e) => {
+				const file = e.target.files[0];
+				if (!file) return;
+				
+				const reader = new FileReader();
+				reader.onload = (event) => {
+					try {
+						const importedRecords = JSON.parse(event.target.result);
+						
+						// 验证导入数据格式
+						if (!Array.isArray(importedRecords)) throw new Error('无效格式');
+						if (importedRecords.length > 0 && !importedRecords[0].id) throw new Error('无效格式');
+						
+						// 合并记录（去重）
+						const newRecords = importedRecords.filter(imported => 
+							!historyRecords.some(existing => existing.id === imported.id)
+						);
+						
+						historyRecords = [...historyRecords, ...newRecords];
+						saveHistory();
+						renderHistoryList();
+						
+						alert(`成功导入 ${newRecords.length} 条记录`);
+					} catch (err) {
+						alert('导入失败: 文件格式无效');
+						console.error(err);
+					}
+				};
+				reader.readAsText(file);
+			});
+
+			// 保存记录到存储
+			function saveRecord(event, note) {
+				const resultText = document.getElementById('resultText').textContent;
+				let originalGua, changedGua;
+
+				// 提取卦名（从HTML元素中获取更可靠）
+				const originalElement = document.querySelector('.gua-link[data-type="original"]');
+				const changedElement = document.querySelector('.gua-link[data-type="changed"]');
+
+				if (originalElement) {
+					originalGua = originalElement.getAttribute('data-gua');
+					changedGua = changedElement ? changedElement.getAttribute('data-gua') : originalGua;
+				} else {
+					// 静卦情况
+					const staticMatch = resultText.match(/(.*?)（静爻/);
+					if (staticMatch) {
+						originalGua = staticMatch[1].trim();
+						changedGua = originalGua;
+					} else {
+						alert('无法获取卦名');
+						return;
+					}
+				}
+				
+				// 更新或添加记录
+				if (currentRecordId) {
+					// 更新现有记录
+					const index = historyRecords.findIndex(r => r.id === currentRecordId);
+					historyRecords[index] = {
+						...historyRecords[index],
+						event,
+						note
+					};
+				} else {
+					// 创建新记录
+					historyRecords.unshift({
+						id: currentRecordId = Date.now().toString(),
+						time: startTime.toLocaleString('zh-CN'),
+						originalGua,
+						changedGua,
+						event,
+						note
+					});
+				}
+
+				saveHistory();
+				saveModal.style.display = 'none'; // 关闭模态框
+			}
+
+			// 保存到本地存储
+			function saveHistory() {
+				localStorage.setItem('dayanHistory', JSON.stringify(historyRecords));
+			}
+
+			// 渲染历史记录列表
+			function renderHistoryList() {
+				historyList.innerHTML = '';
+				
+				if (historyRecords.length === 0) {
+					historyList.innerHTML = '<li style="text-align:center; color:#a9a085;">暂无历史记录</li>';
+					return;
+				}
+				
+				historyRecords.sort((a, b) => b.id - a.id).forEach(record => {
+					const li = document.createElement('li');
+					li.className = 'history-item';
+					li.dataset.id = record.id;
+					
+					li.innerHTML = `
+						<span class="time">${record.time}</span>
+						<span class="result">${record.originalGua}${record.originalGua !== record.changedGua ? ` → ${record.changedGua}` : '（静爻）'}</span>
+						${record.event ? `<span class="event">${record.event}</span>` : ''}
+						${record.note ? `<div class="note">${record.note}</div>` : ''}
+						<div><button class="delete-btn">删除</button></div>
+					`;
+					
+					historyList.appendChild(li);
+					
+					// 添加点击事件
+					li.querySelector('.delete-btn').addEventListener('click', (e) => {
+						e.stopPropagation();
+						deleteRecord(record.id);
+					});
+					
+					li.addEventListener('click', () => {
+						loadRecord(record);
+						historyModal.style.display = 'none';
+					});
+				});
+			}
+
+			// 删除记录
+			function deleteRecord(id) {
+				if (confirm('确定删除此记录吗？')) {
+					historyRecords = historyRecords.filter(record => record.id !== id);
+					saveHistory();
+					renderHistoryList();
+				}
+			}
+
+			// 加载记录
+			function loadRecord(record) {
+				// 设置当前记录ID用于更新
+				currentRecordId = record.id;
+				// 重置开始时间（使用记录中的时间）
+				startTime = new Date(record.time);
+
+				// 查找卦名
+				const originalGua = record.originalGua.replace(/\(.*\)/, '');
+				const changedGua = record.changedGua.replace(/\(.*\)/, '');
+				
+				// 设置下拉框
+				originalGuaSelect.value = originalGua;
+				changedGuaSelect.value = originalGua === changedGua ? 'same' : changedGua;
+				
+				// 应用卦象
+				applySelectedGua();
+				
+				// 显示保存按钮
+				showSaveButton();
+			}
+
+			// 显示保存模态框
+			saveBtn.addEventListener('click', () => {
+				// 如果有当前记录，填充数据
+				if (currentRecordId) {
+					const record = historyRecords.find(r => r.id === currentRecordId);
+					eventInput.value = record.event || '';
+					noteInput.value = record.note || '';
+				} else {
+					eventInput.value = '';
+					noteInput.value = '';
+				}
+				saveModal.style.display = 'block';
+			});
+
+			// 关闭保存模态框
+			closeSave.addEventListener('click', () => saveModal.style.display = 'none');
+			cancelSave.addEventListener('click', () => saveModal.style.display = 'none');
+
+			// 确认保存
+			confirmSave.addEventListener('click', () => {
+				const event = eventInput.value.trim();
+				const note = noteInput.value.trim();
+				
+				if (!event) {
+					alert('请输入占筮事项');
+					return;
+				}
+				
+				saveRecord(event, note);
+				saveModal.style.display = 'none';
+			});
 			// 重置
 			function reset() {
 				currentYao = 0;
 				guaArray = [];
 				changeYaoIndex = -1;
+				startTime = null;
+				currentRecordId = null;
 
 				// 重置选择器
 				originalGuaSelect.selectedIndex = 0;
@@ -1316,6 +1774,8 @@
 				const mainWrapper = document.querySelector('.main-wrapper');
 				mainWrapper.classList.remove('show-details');
 				document.querySelector('.gua-details-container').classList.remove('show');
+				// 隐藏保存按钮
+				saveBtn.style.display = 'none';
 			}
 
 			// 事件监听
