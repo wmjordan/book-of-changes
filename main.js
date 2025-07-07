@@ -562,6 +562,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	function applySelectedGua() {
 		const originalGua = originalGuaSelect.value;
 		let changedGua = changedGuaSelect.value;
+		startTime = new Date();
 
 		if (!originalGua) {
 			alert('请选择本卦');
