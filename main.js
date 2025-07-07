@@ -342,6 +342,20 @@ document.addEventListener('DOMContentLoaded', function () {
 		title.textContent = `${guaName}卦详解`;
 		content.innerHTML = '';
 
+        // 显示世爻信息
+        if (details.八宫) {
+            const palace = details.八宫;
+            const extraDiv = document.createElement('div');
+            extraDiv.className = 'extra-info';
+            extraDiv.innerHTML = `${palace.宫}-${palace.卦次}卦`;
+            content.appendChild(extraDiv);
+            
+            // 显示消息卦信息（如果适用）
+            if (details.消息) {
+                extraDiv.innerHTML += `;${details.消息}`;
+            }
+        }
+
 		// 添加卦辞
 		if (details.卦辞) {
 			const div = document.createElement('div');
@@ -389,7 +403,6 @@ document.addEventListener('DOMContentLoaded', function () {
 				div.appendChild(yaoDiv);
 			});
 		}
-
 		container.style.display = 'block';
 		setTimeout(() => {
 			container.classList.add('show'); // 延迟触发显示动画
