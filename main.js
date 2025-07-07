@@ -56,7 +56,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// 创建50根蓍草对象
 	let grasses = [];
-	let currentYao = 0;
 	let guaArray = [];
 	let changeYaoIndex = -1;
 	let processRecords = []; // 存储占筮过程记录
@@ -116,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const yaoDisplay = document.createElement('div');
 			yaoDisplay.className = 'yao-display';
 			yaoDisplay.id = `yaoDisplay${i}`;
+			yaoDisplay.addEventListener('click', () => toggleYaoState(i));
 
 			const yaoButton = document.createElement('button');
 			yaoButton.className = 'yao-button';
@@ -323,6 +323,50 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	}
 
+	// 切换爻状态（动爻/静爻）
+	function toggleYaoState(yaoIndex) {
+		// 确保六爻都已生成
+		if (guaArray.length !== 6) return;
+		
+		// 获取当前爻值
+		const currentValue = guaArray[yaoIndex];
+		
+		// 根据当前状态切换
+		switch(currentValue) {
+			case 6: // 老阴 -> 少阴
+				guaArray[yaoIndex] = 8;
+				break;
+			case 7: // 少阳 -> 老阳
+				guaArray[yaoIndex] = 9;
+				break;
+			case 8: // 少阴 -> 老阴
+				guaArray[yaoIndex] = 6;
+				break;
+			case 9: // 老阳 -> 少阳
+				guaArray[yaoIndex] = 7;
+				break;
+			default:
+				return;
+		}
+		clearChangeMarker();
+
+		// 重新绘制该爻
+		drawYao(yaoIndex, guaArray[yaoIndex]);
+		
+		// 更新卦象显示和结果
+		refreshGuaResult();
+	}
+
+	function clearChangeMarker(){
+		// 清除所有爻上的变爻标记
+		for (let i = 0; i < 6; i++) {
+			const yaoDisplay = document.getElementById(`yaoDisplay${i}`);
+			const markers = yaoDisplay.querySelectorAll('.change-marker');
+			markers.forEach(marker => marker.remove());
+		}
+	}
+
+
 	// 根据二进制值查找卦名和卦序
 	function findGuaInfo(binary) {
 		const index = parseInt(binary, 2);
@@ -418,6 +462,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// 显示卦结果
 	function showGuaResult() {
+		clearChangeMarker();
+		refreshGuaResult();
+		
+		// 显示保存按钮
+		showSaveButton();
+	}
+
+	function refreshGuaResult() {
 		const resultBar = document.querySelector('.result-bar');
 
 		// 清除之前的结果信息
