@@ -405,9 +405,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		// 显示上下卦
 		const structure = getGuaStructure(guaName);
-            const extraDiv = document.createElement('div');
-            extraDiv.className = 'extra-info';
-            content.appendChild(extraDiv);
+		const extraDiv = document.createElement('div');
+		extraDiv.className = 'extra-info';
+		content.appendChild(extraDiv);
 		if (structure.upper && structure.lower) {
 			if (structure.upper != structure.lower) {
 				title.textContent = `${structure.upper.象}${structure.lower.象}${guaName}`;
@@ -497,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	function showGuaResult() {
 		clearChangeMarker();
 		refreshGuaResult();
-		
+
 		// 显示保存按钮
 		showSaveButton();
 	}
@@ -526,6 +526,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		// 获取本卦信息
 		const originalInfo = findGuaInfo(originalBinary);
+		originalGuaSelect.value = originalInfo.name;
 
 		// 寻找动爻（6或9）
 		const hasChangeYao = guaArray.some(val => val === 6 || val === 9);
@@ -595,11 +596,13 @@ document.addEventListener('DOMContentLoaded', function () {
 			// 获取之卦信息
 			const changedInfo = findGuaInfo(changedBinary);
 
-			// 在顶部显示结果（添加点击事件）
+			// 显示结果
 			resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span> 之 <span class="gua-link" data-gua="${changedInfo.name}" data-type="changed">${changedInfo.name}(${changedInfo.order})</span>`;
+			changedGuaSelect.value = changedInfo.name;
 		} else {
 			// 全为7、8，无变爻
 			resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span>（静爻）`;
+			changedGuaSelect.value = 'same'; // 静卦
 		}
 
 		// 存储变爻索引
