@@ -382,8 +382,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (index === -1) return { upper: null, lower: null };
 		
 		const binary = index.toString(2).padStart(6, '0');
-		const upperBinary = binary.substring(0, 3);
-		const lowerBinary = binary.substring(3);
+		const upperBinary = binary.substring(3);
+		const lowerBinary = binary.substring(0, 3);
 		
 		const upperIndex = parseInt(upperBinary, 2);
 		const lowerIndex = parseInt(lowerBinary, 2);
