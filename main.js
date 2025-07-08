@@ -18,15 +18,21 @@ guaData.forEach((name, index) => {
 
 // 二进制卦序映射
 const binaryOrder = [
-	"坤", "剥", "比", "观", "豫", "晋", "萃", "否",
-	"谦", "艮", "蹇", "渐", "小过", "旅", "咸", "遁",
-	"师", "蒙", "坎", "涣", "解", "未济", "困", "讼",
-	"升", "蛊", "井", "巽", "恒", "鼎", "大过", "姤",
-	"复", "颐", "屯", "益", "震", "噬嗑", "随", "无妄",
-	"明夷", "贲", "既济", "家人", "丰", "离", "革", "同人",
-	"临", "损", "节", "中孚", "归妹", "睽", "兑", "履",
-	"泰", "大畜", "需", "小畜", "大壮", "大有", "夬", "乾"
+	'坤', '复', '师', '临', '谦', '明夷', '升', '泰',
+	'豫', '震', '解', '归妹', '小过', '丰', '恒', '大壮',
+	'比', '屯', '坎', '节', '蹇', '既济', '井', '需',
+	'萃', '随', '困', '兑', '咸', '革', '大过', '夬',
+	'剥', '颐', '蒙', '损', '艮', '贲', '蛊', '大畜',
+	'晋', '噬嗑', '未济', '睽', '旅', '离', '鼎', '大有',
+	'观', '益', '涣', '中孚', '渐', '家人', '巽', '小畜',
+	'否', '无妄', '讼', '履', '遁', '同人', '姤', '乾'
 ];
+
+// 创建卦名到位序的映射
+const guaNameToIndex = {};
+binaryOrder.forEach((name, index) => {
+	guaNameToIndex[name] = index;
+});
 
 document.addEventListener('DOMContentLoaded', function () {
 	const guaContainer = document.getElementById('guaContainer');
@@ -368,26 +374,21 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 
-	// 根据二进制值查找卦名和卦序
-	function findGuaInfo(binary) {
-		const index = parseInt(binary, 2);
+	// 根据整型索引查找卦名和卦序（使用位操作）
+	function findGuaInfo(index) {
 		const name = binaryOrder[index];
 		const order = guaOrderMap[name] || 0;
-
 		return { name, order };
 	}
 
-	// 获取卦的上下卦结构
+	// 获取卦的上下卦结构（使用位操作）
 	function getGuaStructure(guaName) {
-		const index = binaryOrder.indexOf(guaName);
-		if (index === -1) return { upper: null, lower: null };
+		const index = guaNameToIndex[guaName];
+		if (index === undefined) return { upper: null, lower: null };
 		
-		const binary = index.toString(2).padStart(6, '0');
-		const upperBinary = binary.substring(3);
-		const lowerBinary = binary.substring(0, 3);
-		
-		const upperIndex = parseInt(upperBinary, 2);
-		const lowerIndex = parseInt(lowerBinary, 2);
+		// 使用位操作提取上下卦
+		const lowerIndex = index & 0x7;       // 低3位（下卦）
+		const upperIndex = (index >> 3) & 0x7; // 高3位（上卦）
 		
 		return {
 			upper: trigrams[upperIndex],
@@ -423,16 +424,54 @@ document.addEventListener('DOMContentLoaded', function () {
 			title.textContent = `${guaName}卦`;
 		}
 
-        // 显示世爻信息
-        if (details.八宫) {
-            const palace = details.八宫;
-            extraDiv.textContent += ` ${palace.宫}${palace.卦次}卦`;
-            
-            // 显示消息卦信息（如果适用）
-            if (details.消息) {
-                extraDiv.textContent += ` ${details.消息}`;
-            }
-        }
+		// 显示世爻信息
+		if (details.八宫) {
+			const palace = details.八宫;
+			extraDiv.textContent += ` ${palace.宫}${palace.卦次}卦`;
+			
+			// 显示消息卦信息（如果适用）
+			if (details.消息) {
+				extraDiv.textContent += ` ${details.消息}`;
+			}
+		}
+
+		// 计算并显示覆卦、错卦、互卦
+		const guaIndex = binaryOrder.indexOf(guaName);
+		if (guaIndex !== -1) {
+			let binaryStr = guaIndex.toString(2).padStart(6, '0');
+			
+			// 覆卦（反卦）：将二进制字符串反转
+			const fuBinary = binaryStr.split('').reverse().join('');
+			const fuIndex = parseInt(fuBinary, 2);
+			const fuName = binaryOrder[fuIndex];
+			
+			// 错卦：将每一位取反
+			const cuoBinary = binaryStr.split('').map(bit => bit === '0' ? '1' : '0').join('');
+			const cuoIndex = parseInt(cuoBinary, 2);
+			const cuoName = binaryOrder[cuoIndex];
+			
+			// 互卦：取二、三、四爻为下卦，三、四、五爻为上卦
+			const huBinary = binaryStr[1] + binaryStr[2] + binaryStr[3] + binaryStr[2] + binaryStr[3] + binaryStr[4];
+			const huIndex = parseInt(huBinary, 2);
+			const huName = binaryOrder[huIndex];
+			
+			const relationsDiv = document.createElement('div');
+			relationsDiv.className = 'gua-text';
+			relationsDiv.innerHTML = `
+				覆卦: <span class="gua-link" data-gua="${fuName}">${fuName}</span>
+				错卦: <span class="gua-link" data-gua="${cuoName}">${cuoName}</span>
+				互卦: <span class="gua-link" data-gua="${huName}">${huName}</span>
+			`;
+			content.appendChild(relationsDiv);
+			// 添加点击事件
+			relationsDiv.querySelectorAll('.gua-link').forEach(link => {
+				link.addEventListener('click', function () {
+					const guaName = this.getAttribute('data-gua');
+					const type = this.getAttribute('data-type');
+					showGuaDetails(guaName, false, false);
+				});
+			});
+		}
 
 		// 添加卦辞
 		if (details.卦辞) {
@@ -528,14 +567,16 @@ document.addEventListener('DOMContentLoaded', function () {
 		totalInfo.textContent = `六爻营数之和: ${total}`;
 		resultBar.appendChild(totalInfo);
 
-		// 生成本卦二进制表示
-		let originalBinary = '';
+		// 生成本卦索引（使用位操作）
+		let originalIndex = 0;
 		for (let i = 0; i < 6; i++) {
-			originalBinary += (guaArray[i] === 7 || guaArray[i] === 9) ? '1' : '0';
+			if (guaArray[i] === 7 || guaArray[i] === 9) {
+				originalIndex |= (1 << i); // 设置对应位
+			}
 		}
 
-		// 获取本卦信息
-		const originalInfo = findGuaInfo(originalBinary);
+		// 获取本卦信息（直接使用整型索引）
+		const originalInfo = findGuaInfo(originalIndex);
 		originalGuaSelect.value = originalInfo.name;
 
 		// 寻找动爻（6或9）
@@ -551,30 +592,21 @@ document.addEventListener('DOMContentLoaded', function () {
 			remainderInfo.textContent = ` 余数: ${remainder}`;
 			resultBar.appendChild(remainderInfo);
 
-			// 确定宜变之爻位置
-			// 从初爻(0)开始向上数，到上爻(5)折返
+			// 确定宜变之爻位置（使用位运算优化）
 			let current = 0;
 			let direction = 1; // 1:向上, -1:向下
-
-			// 先数初爻（位置0）
-			remainder--;
+			remainder--; // 先数初爻（位置0）
 
 			while (remainder > 0) {
-				// 到达上爻后折返向下
 				if (current === 5 && direction === 1) {
 					direction = -1;
 					current = 4;
-				}
-				// 到达初爻后折返向上
-				else if (current === 0 && direction === -1) {
+				} else if (current === 0 && direction === -1) {
 					direction = 1;
 					current = 1;
-				}
-				// 正常移动
-				else {
+				} else {
 					current += direction;
 				}
-
 				remainder--;
 			}
 
@@ -587,24 +619,24 @@ document.addEventListener('DOMContentLoaded', function () {
 			changeInfo.textContent = ` 宜变：${yaoNames[changeYaoIndex]}爻`;
 			resultBar.appendChild(changeInfo);
 
-			// 计算之卦
-			let changedBinary = '';
+			// 计算之卦索引（使用位操作）
+			let changedIndex = 0;
 			for (let i = 0; i < 6; i++) {
 				const yaoValue = guaArray[i];
 				switch (yaoValue) {
 					case 6: // 老阴变阳
 					case 7: // 少阳不变
-						changedBinary += '1';
+						changedIndex |= (1 << i);
 						break;
 					case 8: // 少阴不变
 					case 9: // 老阳变阴
-						changedBinary += '0';
+						// 默认0，无需设置
 						break;
 				}
 			}
 
-			// 获取之卦信息
-			const changedInfo = findGuaInfo(changedBinary);
+			// 获取之卦信息（直接使用整型索引）
+			const changedInfo = findGuaInfo(changedIndex);
 
 			// 显示结果
 			resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span> 之 <span class="gua-link" data-gua="${changedInfo.name}" data-type="changed">${changedInfo.name}(${changedInfo.order})</span>`;
@@ -625,7 +657,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		window.specialYaoIndex = changeYaoIndex; // 宜变之爻
 
 		// 添加点击事件
-		document.querySelectorAll('.gua-link').forEach(link => {
+		resultBar.querySelectorAll('.gua-link').forEach(link => {
 			link.addEventListener('click', function () {
 				const guaName = this.getAttribute('data-gua');
 				const type = this.getAttribute('data-type');
@@ -647,16 +679,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		showSaveButton();
 	}
 
-	// 根据卦名获取二进制表示
-	function getBinaryForGua(guaName) {
-		const index = binaryOrder.indexOf(guaName);
-		if (index === -1) return null;
-
-		// 将索引转换为6位二进制字符串
-		return index.toString(2).padStart(6, '0');
-	}
-
-	// 应用选择的卦象
+	// 应用选择的卦象（使用位操作优化）
 	function applySelectedGua() {
 		const originalGua = originalGuaSelect.value;
 		let changedGua = changedGuaSelect.value;
@@ -675,28 +698,28 @@ document.addEventListener('DOMContentLoaded', function () {
 			changedGua = originalGua;
 		}
 
-		// 获取本卦和之卦的二进制表示
-		const originalBinary = getBinaryForGua(originalGua);
-		const changedBinary = getBinaryForGua(changedGua);
+		// 获取本卦和之卦的索引（使用位操作）
+		const originalIndex = guaNameToIndex[originalGua];
+		const changedIndex = guaNameToIndex[changedGua];
 
-		if (!originalBinary || !changedBinary) {
+		if (originalIndex === undefined || changedIndex === undefined) {
 			alert('无法找到卦象信息');
 			return;
 		}
 
-		// 计算每个爻的营数
+		// 计算每个爻的营数（使用位操作）
 		guaArray = [];
 		for (let i = 0; i < 6; i++) {
-			const originalBit = originalBinary[i];
-			const changedBit = changedBinary[i];
+			const originalBit = (originalIndex >> i) & 1;
+			const changedBit = (changedIndex >> i) & 1;
 
-			if (originalBit === '0' && changedBit === '0') {
+			if (originalBit === 0 && changedBit === 0) {
 				guaArray[i] = 8; // 少阴
-			} else if (originalBit === '0' && changedBit === '1') {
+			} else if (originalBit === 0 && changedBit === 1) {
 				guaArray[i] = 6; // 老阴（变爻）
-			} else if (originalBit === '1' && changedBit === '0') {
+			} else if (originalBit === 1 && changedBit === 0) {
 				guaArray[i] = 9; // 老阳（变爻）
-			} else if (originalBit === '1' && changedBit === '1') {
+			} else if (originalBit === 1 && changedBit === 1) {
 				guaArray[i] = 7; // 少阳
 			}
 		}
