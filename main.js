@@ -376,6 +376,24 @@ document.addEventListener('DOMContentLoaded', function () {
 		return { name, order };
 	}
 
+	// 获取卦的上下卦结构
+	function getGuaStructure(guaName) {
+		const index = binaryOrder.indexOf(guaName);
+		if (index === -1) return { upper: null, lower: null };
+		
+		const binary = index.toString(2).padStart(6, '0');
+		const upperBinary = binary.substring(0, 3);
+		const lowerBinary = binary.substring(3);
+		
+		const upperIndex = parseInt(upperBinary, 2);
+		const lowerIndex = parseInt(lowerBinary, 2);
+		
+		return {
+			upper: trigrams[upperIndex],
+			lower: trigrams[lowerIndex]
+		};
+	}
+
 	// 显示卦详细信息
 	function showGuaDetails(guaName, isOriginal, scroll) {
 		const details = guaTexts[guaName] || {};
@@ -383,20 +401,35 @@ document.addEventListener('DOMContentLoaded', function () {
 		const title = document.getElementById('guaDetailsTitle');
 		const content = document.getElementById('guaDetailsContent');
 
-		title.textContent = `${guaName}卦详解`;
-		content.innerHTML = '';
+		content.innerHTML = ''; // 清空内容
+
+		// 显示上下卦
+		const structure = getGuaStructure(guaName);
+            const extraDiv = document.createElement('div');
+            extraDiv.className = 'extra-info';
+            content.appendChild(extraDiv);
+		if (structure.upper && structure.lower) {
+			if (structure.upper != structure.lower) {
+				title.textContent = `${structure.upper.象}${structure.lower.象}${guaName}`;
+				extraDiv.textContent = `上${structure.upper.名}下${structure.lower.名}`;
+			}
+			else {
+				title.textContent = `${structure.upper.名}为${structure.upper.象}`;
+				extraDiv.textContent = `${structure.upper.卦形} 先天${structure.upper.先天方位} 后天${structure.upper.后天方位} ${structure.upper.季} ${structure.upper.身} ${structure.upper.亲} ${structure.upper.兽}`;
+			}
+		}
+		else {
+			title.textContent = `${guaName}卦`;
+		}
 
         // 显示世爻信息
         if (details.八宫) {
             const palace = details.八宫;
-            const extraDiv = document.createElement('div');
-            extraDiv.className = 'extra-info';
-            extraDiv.innerHTML = `${palace.宫}-${palace.卦次}卦`;
-            content.appendChild(extraDiv);
+            extraDiv.textContent += ` ${palace.宫}${palace.卦次}卦`;
             
             // 显示消息卦信息（如果适用）
             if (details.消息) {
-                extraDiv.innerHTML += `;${details.消息}`;
+                extraDiv.textContent += ` ${details.消息}`;
             }
         }
 
