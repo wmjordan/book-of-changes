@@ -171,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		// 如果是初爻（第一次点击），记录开始时间
 		if (yaoIndex === 0) {
 			startTime = new Date();
+			document.getElementById('processList').parentNode.style.display = 'block';
 		}
 		// 重置蓍草使用状态（除太极草外）
 		grasses.forEach(g => {
@@ -660,6 +661,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		const originalGua = originalGuaSelect.value;
 		let changedGua = changedGuaSelect.value;
 		startTime = new Date();
+		document.getElementById('processList').parentNode.style.display = 'none';
 
 		if (!originalGua) {
 			alert('请选择本卦');
@@ -957,6 +959,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		createGrasses();
 		initYaoRows();
 		document.getElementById('guaDetailsContainer').style.display = 'none';
+		document.getElementById('processList').parentNode.style.display = 'none';
 		const mainWrapper = document.querySelector('.main-wrapper');
 		mainWrapper.classList.remove('show-details');
 		document.querySelector('.gua-details-container').classList.remove('show');
