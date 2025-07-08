@@ -16,7 +16,9 @@ body {
 	position: relative;
 	overflow-x: hidden;
 }
-
+a {
+	color: #d4b483;
+}
 body::before {
 	content: "";
 	position: absolute;
