@@ -480,6 +480,15 @@ document.addEventListener('DOMContentLoaded', function () {
 				div.appendChild(yaoDiv);
 			});
 		}
+
+		// 添加杂卦
+		if (details.杂卦) {
+			const div = document.createElement('div');
+			div.className = 'gua-text';
+			div.innerHTML = `<div class="gua-text-title">杂卦</div><div>${details.杂卦}</div>`;
+			content.appendChild(div);
+		}
+
 		container.style.display = 'block';
 		setTimeout(() => {
 			container.classList.add('show'); // 延迟触发显示动画
