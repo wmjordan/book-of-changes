@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (structure.upper && structure.lower) {
 			if (structure.upper != structure.lower) {
 				title.textContent = `${structure.upper.象}${structure.lower.象}${guaName}`;
-				extraDiv.textContent = `上${structure.upper.名}下${structure.lower.名}`;
+				extraDiv.textContent = `${structure.lower.卦形}${structure.lower.名}下${structure.upper.卦形}${structure.upper.名}上`;
 			}
 			else {
 				title.textContent = `${structure.upper.名}为${structure.upper.象}`;
