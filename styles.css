@@ -715,6 +715,13 @@ body::before {
 
 /* 窄屏布局 - 最大宽度 999px */
 @media (max-width: 999px) {
+	.button-group {
+		display: flex;
+		gap: 10px;
+		margin-top: 10px;
+		width: 100%;
+        justify-content: center;
+	}
 	.gua-details-container {
 		width: 100%;
 		max-width: 800px;
@@ -726,9 +733,11 @@ body::before {
 @media (max-width: 768px) {
 	.control-panel {
 		flex-direction: row;
-		align-items: stretch;
 	}
 
+    .button-group {
+        flex-direction: row;
+    }
 	.control-group {
 		flex-direction: row;
 		justify-content: space-between;
