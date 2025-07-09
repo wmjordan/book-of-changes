@@ -1,5 +1,5 @@
 // 卦名数据
-const guaData = [
+const GUA_DATA = [
 	"乾", "坤", "屯", "蒙", "需", "讼", "师", "比",
 	"小畜", "履", "泰", "否", "同人", "大有", "谦", "豫",
 	"随", "蛊", "临", "观", "噬嗑", "贲", "剥", "复",
@@ -11,13 +11,13 @@ const guaData = [
 ];
 
 // 卦序查找表
-const guaOrderMap = {};
-guaData.forEach((name, index) => {
-	guaOrderMap[name] = index + 1; // 卦序从1开始
+const GUA_ORDER_MAP = {};
+GUA_DATA.forEach((name, index) => {
+	GUA_ORDER_MAP[name] = index + 1; // 卦序从1开始
 });
 
 // 二进制卦序映射
-const binaryOrder = [
+const BINARY_ORDER = [
 	'坤', '复', '师', '临', '谦', '明夷', '升', '泰',
 	'豫', '震', '解', '归妹', '小过', '丰', '恒', '大壮',
 	'比', '屯', '坎', '节', '蹇', '既济', '井', '需',
@@ -29,9 +29,9 @@ const binaryOrder = [
 ];
 
 // 创建卦名到位序的映射
-const guaNameToIndex = {};
-binaryOrder.forEach((name, index) => {
-	guaNameToIndex[name] = index;
+const GUA_NAME_TO_INDEX = {};
+BINARY_ORDER.forEach((name, index) => {
+	GUA_NAME_TO_INDEX[name] = index;
 });
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// 获取卦形符号
 	function getGuaSymbol(guaName, hexgram) {
-		const index = guaData.indexOf(guaName);
+		const index = GUA_DATA.indexOf(guaName);
 		return index !== -1 ?
 			hexgram ? `<span class=".gua-symbol">${String.fromCodePoint(0x4DC0 + index)}</span>` : String.fromCodePoint(0x4DC0 + index)
 			: '';
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// 填充卦名下拉列表
 	function populateGuaSelects() {
-		guaData.forEach((gua, index) => {
+		GUA_DATA.forEach((gua, index) => {
 			const symbol = getGuaSymbol(gua, false);
 			const option1 = document.createElement('option');
 			option1.value = gua;
@@ -385,14 +385,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// 根据整型索引查找卦名和卦序（使用位操作）
 	function findGuaInfo(index) {
-		const name = binaryOrder[index];
-		const order = guaOrderMap[name] || 0;
+		const name = BINARY_ORDER[index];
+		const order = GUA_ORDER_MAP[name] || 0;
 		return { name, order };
 	}
 
 	// 获取卦的上下卦结构（使用位操作）
 	function getGuaStructure(guaName) {
-		const index = guaNameToIndex[guaName];
+		const index = GUA_NAME_TO_INDEX[guaName];
 		if (index === undefined) return { upper: null, lower: null };
 		
 		// 使用位操作提取上下卦
@@ -446,24 +446,24 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 
 		// 计算并显示覆卦、错卦、互卦
-		const guaIndex = binaryOrder.indexOf(guaName);
+		const guaIndex = BINARY_ORDER.indexOf(guaName);
 		if (guaIndex !== -1) {
 			let binaryStr = guaIndex.toString(2).padStart(6, '0');
 			
 			// 覆卦（反卦）：将二进制字符串反转
 			const fuBinary = binaryStr.split('').reverse().join('');
 			const fuIndex = parseInt(fuBinary, 2);
-			const fuName = binaryOrder[fuIndex];
+			const fuName = BINARY_ORDER[fuIndex];
 			
 			// 错卦：将每一位取反
 			const cuoBinary = binaryStr.split('').map(bit => bit === '0' ? '1' : '0').join('');
 			const cuoIndex = parseInt(cuoBinary, 2);
-			const cuoName = binaryOrder[cuoIndex];
+			const cuoName = BINARY_ORDER[cuoIndex];
 			
 			// 互卦：取二、三、四爻为下卦，三、四、五爻为上卦
 			const huBinary = binaryStr[1] + binaryStr[2] + binaryStr[3] + binaryStr[2] + binaryStr[3] + binaryStr[4];
 			const huIndex = parseInt(huBinary, 2);
-			const huName = binaryOrder[huIndex];
+			const huName = BINARY_ORDER[huIndex];
 			
 			const relationsDiv = document.createElement('div');
 			relationsDiv.className = 'gua-text';
@@ -709,8 +709,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 
 		// 获取本卦和之卦的索引（使用位操作）
-		const originalIndex = guaNameToIndex[originalGua];
-		const changedIndex = guaNameToIndex[changedGua];
+		const originalIndex = GUA_NAME_TO_INDEX[originalGua];
+		const changedIndex = GUA_NAME_TO_INDEX[changedGua];
 
 		if (originalIndex === undefined || changedIndex === undefined) {
 			alert('无法找到卦象信息');
