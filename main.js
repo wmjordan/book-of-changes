@@ -820,6 +820,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				alert('导入失败: 文件格式无效');
 				console.error(err);
 			}
+			importFile.value = '';
 		};
 		reader.readAsText(file);
 	});
