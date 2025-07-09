@@ -478,6 +478,13 @@ body::before {
 	font-weight: bold;
 }
 
+.gua-symbol {
+    font-family: "Segoe UI Symbol", "STIX", sans-serif;
+    font-size: 1.2em;
+    margin-left: 3px;
+    vertical-align: middle;
+}
+
 .gua-link {
 	cursor: pointer;
 }

@@ -67,17 +67,26 @@ document.addEventListener('DOMContentLoaded', function () {
 	let processRecords = []; // 存储占筮过程记录
 	let startTime = null; // 记录开始占筮的时间
 
+	// 获取卦形符号
+	function getGuaSymbol(guaName, hexgram) {
+		const index = guaData.indexOf(guaName);
+		return index !== -1 ?
+			hexgram ? `<span class=".gua-symbol">${String.fromCodePoint(0x4DC0 + index)}</span>` : String.fromCodePoint(0x4DC0 + index)
+			: '';
+	}
+
 	// 填充卦名下拉列表
 	function populateGuaSelects() {
 		guaData.forEach((gua, index) => {
+			const symbol = getGuaSymbol(gua, false);
 			const option1 = document.createElement('option');
 			option1.value = gua;
-			option1.textContent = `${index + 1}.${gua}`;
+			option1.textContent = `${index + 1}.${gua} ${symbol}`;
 			originalGuaSelect.appendChild(option1);
 
 			const option2 = document.createElement('option');
 			option2.value = gua;
-			option2.textContent = `${index + 1}.${gua}`;
+			option2.textContent = `${index + 1}.${gua} ${symbol}`;
 			changedGuaSelect.appendChild(option2);
 		});
 	}
@@ -410,18 +419,19 @@ document.addEventListener('DOMContentLoaded', function () {
 		const extraDiv = document.createElement('div');
 		extraDiv.className = 'extra-info';
 		content.appendChild(extraDiv);
+		const symbol = getGuaSymbol(guaName, true);
 		if (structure.upper && structure.lower) {
 			if (structure.upper != structure.lower) {
-				title.textContent = `${structure.upper.象}${structure.lower.象}${guaName}`;
+				title.innerHTML = `${symbol} ${structure.upper.象}${structure.lower.象}${guaName}`;
 				extraDiv.textContent = `${structure.lower.卦形}${structure.lower.名}下${structure.upper.卦形}${structure.upper.名}上`;
 			}
 			else {
-				title.textContent = `${structure.upper.名}为${structure.upper.象}`;
+				title.innerHTML = `${symbol} ${guaName}为${structure.upper.象}`;
 				extraDiv.textContent = `${structure.upper.卦形} 先天${structure.upper.先天方位} 后天${structure.upper.后天方位} ${structure.upper.季} ${structure.upper.身} ${structure.upper.亲} ${structure.upper.兽}`;
 			}
 		}
 		else {
-			title.textContent = `${guaName}卦`;
+			title.innerHTML = `${symbol} ${guaName}卦`;
 		}
 
 		// 显示世爻信息
@@ -458,9 +468,9 @@ document.addEventListener('DOMContentLoaded', function () {
 			const relationsDiv = document.createElement('div');
 			relationsDiv.className = 'gua-text';
 			relationsDiv.innerHTML = `
-				覆卦: <span class="gua-link" data-gua="${fuName}">${fuName}</span>
-				错卦: <span class="gua-link" data-gua="${cuoName}">${cuoName}</span>
-				互卦: <span class="gua-link" data-gua="${huName}">${huName}</span>
+				覆卦: <span class="gua-link" data-gua="${fuName}">${fuName}${getGuaSymbol(fuName, true)}</span>
+				错卦: <span class="gua-link" data-gua="${cuoName}">${cuoName}${getGuaSymbol(cuoName, true)}</span>
+				互卦: <span class="gua-link" data-gua="${huName}">${huName}${getGuaSymbol(huName, true)}</span>
 			`;
 			content.appendChild(relationsDiv);
 			// 添加点击事件
@@ -639,11 +649,11 @@ document.addEventListener('DOMContentLoaded', function () {
 			const changedInfo = findGuaInfo(changedIndex);
 
 			// 显示结果
-			resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span> 之 <span class="gua-link" data-gua="${changedInfo.name}" data-type="changed">${changedInfo.name}(${changedInfo.order})</span>`;
+			resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}${getGuaSymbol(originalInfo.name, true)}(${originalInfo.order})</span> 之 <span class="gua-link" data-gua="${changedInfo.name}" data-type="changed">${changedInfo.name}${getGuaSymbol(changedInfo.name, true)}(${changedInfo.order})</span>`;
 			changedGuaSelect.value = changedInfo.name;
 		} else {
 			// 全为7、8，无变爻
-			resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}(${originalInfo.order})</span>（静爻）`;
+			resultText.innerHTML = `<span class="gua-link" data-gua="${originalInfo.name}" data-type="original">${originalInfo.name}${getGuaSymbol(originalInfo.name, true)}(${originalInfo.order})</span>（静爻）`;
 			changedGuaSelect.value = 'same'; // 静卦
 		}
 
@@ -879,12 +889,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		historyRecords.sort((a, b) => b.id - a.id).forEach(record => {
 			const li = document.createElement('li');
+			const original = record.originalGua + getGuaSymbol(record.originalGua, true);
+			const changed = record.originalGua !== record.changedGua ? (" → "+ record.changedGua + getGuaSymbol(record.changedGua, true)) : '（静爻）';
 			li.className = 'history-item';
 			li.dataset.id = record.id;
 
 			li.innerHTML = `
 						<span class="time">${record.time}</span>
-						<span class="result">${record.originalGua}${record.originalGua !== record.changedGua ? ` → ${record.changedGua}` : '（静爻）'}</span>
+						<span class="result">${original}${changed}</span>
 						${record.event ? `<span class="event">${record.event}</span>` : ''}
 						${record.note ? `<div class="note">${record.note}</div>` : ''}
 						<div><button class="delete-btn">删除</button></div>
