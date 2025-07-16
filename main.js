@@ -37,6 +37,9 @@ BINARY_ORDER.forEach((name, index) => {
 const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
 
 document.addEventListener('DOMContentLoaded', function () {
+
+    const dayan = new Dayan();
+
 	const guaContainer = document.getElementById('guaContainer');
 	const grassCounter = document.getElementById('grassCounter');
 	const processList = document.getElementById('processList');
@@ -59,13 +62,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	const cancelSave = document.getElementById('cancelSave');
 	const eventInput = document.getElementById('eventInput');
 	const noteInput = document.getElementById('noteInput');
-
-	// 创建50根蓍草对象
-	let grasses = [];
-	let guaArray = [];
-	let changeYaoIndex = -1;
-	let processRecords = []; // 存储占筮过程记录
-	let startTime = null; // 记录开始占筮的时间
 
 	// 获取卦形符号
 	function getGuaSymbol(guaName, hexgram) {
@@ -91,28 +87,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 	}
 
-	// 创建蓍草
-	function createGrasses() {
-		grasses = [];
-		for (let i = 0; i < 50; i++) {
-			grasses.push({
-				id: i,
-				used: false
-			});
-		}
-		updateGrassCounter();
-	}
-
-	// 更新蓍草计数器
-	function updateGrassCounter() {
-		const usedCount = grasses.filter(g => g.used).length;
-		grassCounter.textContent = `蓍草: ${50 - usedCount}根`;
-	}
-
 	// 初始化爻行
 	function initYaoRows() {
 		guaContainer.innerHTML = '';
-		processRecords = [];
 		processList.innerHTML = '';
 		resultText.textContent = '-';
 
@@ -135,15 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const yaoButton = document.createElement('button');
 			yaoButton.className = 'yao-button';
 			yaoButton.id = `yaoBtn${i}`;
-
-			// 设置按钮文本（从初到上）
-			yaoButton.textContent = `占${YAO_NAMES[i]}爻`;
-
-			// 添加点击事件
-			yaoButton.onclick = () => generateYao(i);
-
-			// 只有初爻（i=0）按钮初始可点击
-			yaoButton.disabled = i !== 0;
+			// 占筮按钮的功能将在 initYaoButtons 方法实现
 
 			yaoRow.appendChild(yaoDisplay);
 			yaoRow.appendChild(yaoButton);
@@ -151,154 +120,71 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	}
 
+	// 初始化爻按钮事件
+    function initYaoButtons() {
+		for (let i = 0; i < 6; i++) {
+			const btn = document.getElementById(`yaoBtn${i}`);
+			btn.textContent = `占${YAO_NAMES[i]}爻`;
+			btn.disabled = i !== 0;
+			btn.onclick = () => onGenerateYaoClick(i);
+		}
+    }
+
 	// 更新占筮过程列表
-	function updateProcessList(yaoIndex, steps, finalValue) {
-		const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
-		const yaoType = getYaoType(finalValue);
+    function updateProcessList() {
+        processList.innerHTML = '';
+        
+        dayan.processRecords.forEach(record => {
+            const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
+            const yaoType = dayan.getYaoType(record.finalValue);
 
-		const processItem = document.createElement('div');
-		processItem.className = 'process-item';
+            const processItem = document.createElement('div');
+            processItem.className = 'process-item';
+            processItem.innerHTML = `
+                <span class="yao-name">${YAO_NAMES[record.yaoIndex]}爻</span>
+                <span>${record.steps[0]}策</span>
+                <span>${record.steps[1]}策</span>
+                <span>${record.steps[2]}策</span>
+                <span class="yao-value">${record.finalValue} (${yaoType})</span>
+            `;
+            processList.appendChild(processItem);
+        });
+    }
 
-		processItem.innerHTML = `
-					<span class="yao-name">${YAO_NAMES[yaoIndex]}爻</span>
-					<span>${steps[0]}策</span>
-					<span>${steps[1]}策</span>
-					<span>${steps[2]}策</span>
-					<span class="yao-value">${finalValue} (${yaoType})</span>
-				`;
+    // 生成爻按钮点击处理
+    function onGenerateYaoClick(yaoIndex) {
+        dayan.generateYao(yaoIndex, (yaoIndex, steps, yaoValue) => {
+            // 更新蓍草计数器
+            grassCounter.textContent = dayan.updateGrassCounter();
+            
+            // 绘制爻
+            drawYao(yaoIndex, yaoValue);
+            
+            // 更新过程列表
+            updateProcessList();
 
-		processList.appendChild(processItem);
-		processRecords.push({
-			yaoIndex,
-			steps,
-			finalValue,
-			yaoType
+			// 禁用当前爻按钮
+			const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
+			currentBtn.disabled = true;
+
+			// 如果是初爻（第一次点击），记录开始时间
+			if (yaoIndex === 0) {
+				startTime = new Date();
+				document.getElementById('processList').parentNode.style.display = 'block';
+				currentBtn.textContent = "重占";
+				currentBtn.disabled = false;
+				currentBtn.onclick = reset; // 绑定重置
+			}
+			// 如果是最后一爻，显示结果
+			if (yaoIndex === 5) {
+				setTimeout(showGuaResult, 500);
+			} else {
+				// 启用下一爻按钮
+				const nextYaoIndex = yaoIndex + 1;
+				const nextBtn = document.getElementById(`yaoBtn${nextYaoIndex}`);
+				nextBtn.disabled = false;
+			}
 		});
-	}
-
-	// 大衍筮法生成一爻
-	function generateYao(yaoIndex) {
-		// 禁用当前爻按钮
-		const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
-		currentBtn.disabled = true;
-
-		// 如果是初爻（第一次点击），记录开始时间
-		if (yaoIndex === 0) {
-			startTime = new Date();
-			document.getElementById('processList').parentNode.style.display = 'block';
-			currentBtn.textContent = "重占";
-			currentBtn.disabled = false;
-			currentBtn.onclick = reset; // 绑定重置
-		}
-		// 重置蓍草使用状态（除太极草外）
-		grasses.forEach(g => {
-			if (g.id !== 0) g.used = false;
-		});
-
-		// 使用49根蓍草（排除太极草）
-		let availableGrasses = grasses.filter(g => !g.used && g.id !== 0);
-		let steps = [];
-
-		// 模拟三变过程
-		setTimeout(() => {
-			// 第一变
-			const result1 = performDayanStep(availableGrasses, 49);
-			steps.push(result1.remaining);
-			updateGrassCounter();
-
-			setTimeout(() => {
-				// 第二变
-				const result2 = performDayanStep(availableGrasses, result1.remaining);
-				steps.push(result2.remaining);
-				updateGrassCounter();
-
-				setTimeout(() => {
-					// 第三变
-					const result3 = performDayanStep(availableGrasses, result2.remaining);
-					steps.push(result3.remaining);
-					updateGrassCounter();
-
-					// 计算最终结果
-					const yaoValue = result3.remaining / 4;
-
-					// 保存爻信息
-					guaArray[yaoIndex] = yaoValue;
-
-					// 更新占筮过程
-					updateProcessList(yaoIndex, steps, yaoValue);
-
-					// 绘制爻
-					drawYao(yaoIndex, yaoValue);
-
-					// 如果是最后一爻（上爻，i=5），显示卦结果
-					if (yaoIndex === 5) {
-						setTimeout(showGuaResult, 500);
-					}
-					// 启用下一爻按钮（如果不是最后一爻）
-					else {
-						const nextYaoIndex = yaoIndex + 1;
-						const nextBtn = document.getElementById(`yaoBtn${nextYaoIndex}`);
-						nextBtn.disabled = false;
-					}
-				}, 200);
-			}, 200);
-		}, 200);
-	}
-
-	// 执行大衍筮法的一变
-	function performDayanStep(availableGrasses, startingCount) {
-		// 获取可用的蓍草
-		let unusedGrasses = availableGrasses.filter(g => !g.used);
-
-		// 随机排序
-		shuffleArray(unusedGrasses);
-
-		// 分二：随机分成两部分
-		const part1Count = Math.floor(Math.random() * (startingCount - 1)) + 1;
-		const part1 = unusedGrasses.slice(0, part1Count);
-		const part2 = unusedGrasses.slice(part1Count, part1Count + startingCount - part1Count);
-
-		// 挂一：从右边取出一根（随机选择）
-		const rightGrass = part2[Math.floor(Math.random() * part2.length)];
-		rightGrass.used = true;
-		const rightAfterRemove = part2.filter(g => g !== rightGrass);
-
-		// 揲四：分别除以4取余数
-		const remainder1 = part1.length % 4 || 4;
-		const remainder2 = rightAfterRemove.length % 4 || 4;
-
-		// 随机选择余数草
-		const remainderGrasses1 = shuffleArray(part1.slice(0, remainder1));
-		const remainderGrasses2 = shuffleArray(rightAfterRemove.slice(0, remainder2));
-
-		// 标记使用的蓍草
-		remainderGrasses1.forEach(g => g.used = true);
-		remainderGrasses2.forEach(g => g.used = true);
-		rightGrass.used = true;
-
-		// 归奇：计算剩余策数
-		const removed = 1 + remainder1 + remainder2;
-		const remaining = startingCount - removed;
-
-		return { remaining };
-	}
-
-	// 随机打乱数组
-	function shuffleArray(array) {
-		for (let i = array.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[array[i], array[j]] = [array[j], array[i]];
-		}
-		return array;
-	}
-
-	// 获取爻的类型
-	function getYaoType(value) {
-		if (value === 6) return '老阴';
-		if (value === 7) return '少阳';
-		if (value === 8) return '少阴';
-		if (value === 9) return '老阳';
-		return '';
 	}
 
 	// 绘制爻（阴爻中间断开）
@@ -342,38 +228,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	// 切换爻状态（动爻/静爻）
-	function toggleYaoState(yaoIndex) {
-		// 确保六爻都已生成
-		if (guaArray.length !== 6) return;
-		
-		// 获取当前爻值
-		const currentValue = guaArray[yaoIndex];
-		
-		// 根据当前状态切换
-		switch(currentValue) {
-			case 6: // 老阴 -> 少阴
-				guaArray[yaoIndex] = 8;
-				break;
-			case 7: // 少阳 -> 老阳
-				guaArray[yaoIndex] = 9;
-				break;
-			case 8: // 少阴 -> 老阴
-				guaArray[yaoIndex] = 6;
-				break;
-			case 9: // 老阳 -> 少阳
-				guaArray[yaoIndex] = 7;
-				break;
-			default:
-				return;
-		}
-		clearChangeMarker();
-
-		// 重新绘制该爻
-		drawYao(yaoIndex, guaArray[yaoIndex]);
-		
-		// 更新卦象显示和结果
-		refreshGuaResult();
-	}
+    function toggleYaoState(yaoIndex) {
+        if (dayan.toggleYaoState(yaoIndex)) {
+            clearChangeMarker();
+            drawYao(yaoIndex, dayan.guaArray[yaoIndex]);
+            refreshGuaResult();
+        }
+    }
 
 	function clearChangeMarker(){
 		// 清除所有爻上的变爻标记
@@ -383,7 +244,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			markers.forEach(marker => marker.remove());
 		}
 	}
-
 
 	// 根据整型索引查找卦名和卦序（使用位操作）
 	function findGuaInfo(index) {
@@ -565,18 +425,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	function refreshGuaResult() {
 		const resultBar = document.querySelector('.result-bar');
+		let guaArray = dayan.guaArray;
 
 		// 清除之前的结果信息
 		const extraInfos = resultBar.querySelectorAll('.result-info');
 		extraInfos.forEach(el => el.remove());
 
-		// 计算六爻营数总和
-		const total = guaArray.reduce((sum, value) => sum + value, 0);
-
 		// 显示营数总和
 		const totalInfo = document.createElement('span');
 		totalInfo.className = 'result-info';
-		totalInfo.textContent = `六爻营数之和: ${total}`;
+		totalInfo.textContent = `六爻营数之和: ${dayan.total}`;
 		resultBar.appendChild(totalInfo);
 
 		// 生成本卦索引（使用位操作）
@@ -596,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		if (hasChangeYao) {
 			// 计算余数：大衍之数55 - 营数总和
-			let remainder = 55 - total;
+			let remainder = 55 - dayan.total;
 
 			// 显示余数
 			const remainderInfo = document.createElement('span');
@@ -604,31 +462,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			remainderInfo.textContent = ` 余数: ${remainder}`;
 			resultBar.appendChild(remainderInfo);
 
-			// 确定宜变之爻位置（使用位运算优化）
-			let current = 0;
-			let direction = 1; // 1:向上, -1:向下
-			remainder--; // 先数初爻（位置0）
-
-			while (remainder > 0) {
-				if (current === 5 && direction === 1) {
-					direction = -1;
-					current = 4;
-				} else if (current === 0 && direction === -1) {
-					direction = 1;
-					current = 1;
-				} else {
-					current += direction;
-				}
-				remainder--;
-			}
-
-			changeYaoIndex = current;
-
 			// 显示宜变之爻
 			const changeInfo = document.createElement('span');
 			changeInfo.className = 'result-info change';
-			const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
-			changeInfo.textContent = ` 宜变：${YAO_NAMES[changeYaoIndex]}爻`;
+			changeInfo.textContent = ` 宜变：${YAO_NAMES[dayan.changeYaoIndex]}爻`;
 			resultBar.appendChild(changeInfo);
 
 			// 计算之卦索引（使用位操作）
@@ -666,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				window.changeYaoIndexes.push(i);
 			}
 		}
-		window.specialYaoIndex = changeYaoIndex; // 宜变之爻
+		window.specialYaoIndex = dayan.changeYaoIndex; // 宜变之爻
 
 		// 添加点击事件
 		resultBar.querySelectorAll('.gua-link').forEach(link => {
@@ -678,11 +515,11 @@ document.addEventListener('DOMContentLoaded', function () {
 		});
 
 		// 标记宜变之爻
-		if (changeYaoIndex !== -1 && (guaArray[changeYaoIndex] === 6 || guaArray[changeYaoIndex] === 9)) {
+		if (dayan.changeYaoIndex !== -1 && (guaArray[dayan.changeYaoIndex] === 6 || guaArray[dayan.changeYaoIndex] === 9)) {
 			const changeMarker = document.createElement('div');
 			changeMarker.className = 'change-marker';
 			changeMarker.textContent = '变';
-			document.getElementById(`yaoDisplay${changeYaoIndex}`).appendChild(changeMarker);
+			document.getElementById(`yaoDisplay${dayan.changeYaoIndex}`).appendChild(changeMarker);
 		}
 
 		// 显示本卦卦爻辞
@@ -717,26 +554,13 @@ document.addEventListener('DOMContentLoaded', function () {
 			return;
 		}
 
-		// 计算每个爻的营数（使用位操作）
-		guaArray = [];
-		for (let i = 0; i < 6; i++) {
-			const originalBit = (originalIndex >> i) & 1;
-			const changedBit = (changedIndex >> i) & 1;
-
-			if (originalBit === 0 && changedBit === 0) {
-				guaArray[i] = 8; // 少阴
-			} else if (originalBit === 0 && changedBit === 1) {
-				guaArray[i] = 6; // 老阴（变爻）
-			} else if (originalBit === 1 && changedBit === 0) {
-				guaArray[i] = 9; // 老阳（变爻）
-			} else if (originalBit === 1 && changedBit === 1) {
-				guaArray[i] = 7; // 少阳
-			}
-		}
+		dayan.calculateGuaArrayFromIndex(originalIndex, changedIndex);
+		// 计算总营数和宜变之爻
+		dayan.calculateTotalAndChangeIndex();
 
 		// 绘制卦形
 		for (let i = 0; i < 6; i++) {
-			drawYao(i, guaArray[i]);
+			drawYao(i, dayan.guaArray[i]);
 		}
 
 		const firstBtn = document.getElementById('yaoBtn0');
@@ -978,31 +802,23 @@ document.addEventListener('DOMContentLoaded', function () {
 		saveRecord(event, note);
 		saveModal.style.display = 'none';
 	});
+
 	// 重置
 	function reset() {
-		currentYao = 0;
-		guaArray = [];
-		changeYaoIndex = -1;
-		startTime = null;
+		dayan.reset();
 		currentRecordId = null;
 
 		// 重置选择器
 		originalGuaSelect.selectedIndex = 0;
 		changedGuaSelect.selectedIndex = 0;
 
-		createGrasses();
 		initYaoRows();
+		initYaoButtons();
 		document.getElementById('guaDetailsContainer').style.display = 'none';
 		document.getElementById('processList').parentNode.style.display = 'none';
 		const mainWrapper = document.querySelector('.main-wrapper');
 		mainWrapper.classList.remove('show-details');
 		document.querySelector('.gua-details-container').classList.remove('show');
-		for (let i = 0; i < 6; i++) {
-			const btn = document.getElementById(`yaoBtn${i}`);
-			btn.textContent = `占${YAO_NAMES[i]}爻`;
-			btn.disabled = i !== 0;
-			btn.onclick = () => generateYao(i);
-		}
 	}
 
 	// 事件监听
@@ -1010,7 +826,8 @@ document.addEventListener('DOMContentLoaded', function () {
 	detailsTitle.addEventListener('click', scrollToResult);
 
 	// 初始化
-	createGrasses();
 	initYaoRows();
+	initYaoButtons();
 	populateGuaSelects();
+	grassCounter.textContent = dayan.updateGrassCounter();
 });
