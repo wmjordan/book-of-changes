@@ -869,6 +869,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			const index = historyRecords.findIndex(r => r.id === currentRecordId);
 			historyRecords[index] = {
 				...historyRecords[index],
+				changedGua,
 				event,
 				note
 			};
