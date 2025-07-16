@@ -383,13 +383,6 @@ body::before {
 	font-weight: bold;
 }
 
-.button-container {
-	display: flex;
-	justify-content: center;
-	margin: 12px 0;
-	width: 100%;
-}
-
 .btn {
 	padding: 10px 25px;
 	font-size: 1.1rem;

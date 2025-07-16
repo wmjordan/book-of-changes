@@ -34,18 +34,18 @@ BINARY_ORDER.forEach((name, index) => {
 	GUA_NAME_TO_INDEX[name] = index;
 });
 
+const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
+
 document.addEventListener('DOMContentLoaded', function () {
 	const guaContainer = document.getElementById('guaContainer');
 	const grassCounter = document.getElementById('grassCounter');
 	const processList = document.getElementById('processList');
 	const resultText = document.getElementById('resultText');
-	const restartBtn = document.getElementById('restartBtn');
 	const applyBtn = document.getElementById('applyBtn');
 	const originalGuaSelect = document.getElementById('originalGua');
 	const changedGuaSelect = document.getElementById('changedGua');
 	const detailsTitle = document.getElementById('guaDetailsTitle');
 
-	const saveBtn = document.getElementById('saveBtn');
 	const loadBtn = document.getElementById('loadBtn');
 	const historyModal = document.getElementById('historyModal');
 	const closeModal = document.querySelector('.close');
@@ -137,11 +137,10 @@ document.addEventListener('DOMContentLoaded', function () {
 			yaoButton.id = `yaoBtn${i}`;
 
 			// 设置按钮文本（从初到上）
-			const yaoNames = ['初', '二', '三', '四', '五', '上'];
-			yaoButton.textContent = `占${yaoNames[i]}爻`;
+			yaoButton.textContent = `占${YAO_NAMES[i]}爻`;
 
 			// 添加点击事件
-			yaoButton.addEventListener('click', () => generateYao(i));
+			yaoButton.onclick = () => generateYao(i);
 
 			// 只有初爻（i=0）按钮初始可点击
 			yaoButton.disabled = i !== 0;
@@ -154,14 +153,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// 更新占筮过程列表
 	function updateProcessList(yaoIndex, steps, finalValue) {
-		const yaoNames = ['初', '二', '三', '四', '五', '上'];
+		const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
 		const yaoType = getYaoType(finalValue);
 
 		const processItem = document.createElement('div');
 		processItem.className = 'process-item';
 
 		processItem.innerHTML = `
-					<span class="yao-name">${yaoNames[yaoIndex]}爻</span>
+					<span class="yao-name">${YAO_NAMES[yaoIndex]}爻</span>
 					<span>${steps[0]}策</span>
 					<span>${steps[1]}策</span>
 					<span>${steps[2]}策</span>
@@ -187,6 +186,9 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (yaoIndex === 0) {
 			startTime = new Date();
 			document.getElementById('processList').parentNode.style.display = 'block';
+			currentBtn.textContent = "重占";
+			currentBtn.disabled = false;
+			currentBtn.onclick = reset; // 绑定重置
 		}
 		// 重置蓍草使用状态（除太极草外）
 		grasses.forEach(g => {
@@ -477,7 +479,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			relationsDiv.querySelectorAll('.gua-link').forEach(link => {
 				link.addEventListener('click', function () {
 					const guaName = this.getAttribute('data-gua');
-					const type = this.getAttribute('data-type');
 					showGuaDetails(guaName, false, false);
 				});
 			});
@@ -556,9 +557,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	function showGuaResult() {
 		clearChangeMarker();
 		refreshGuaResult();
-
-		// 显示保存按钮
-		showSaveButton();
+		const lastBtn = document.getElementById('yaoBtn5');
+		lastBtn.textContent = "保存";
+		lastBtn.disabled = false;
+		lastBtn.onclick = showSaveDialog; // 触发保存模态框
 	}
 
 	function refreshGuaResult() {
@@ -625,8 +627,8 @@ document.addEventListener('DOMContentLoaded', function () {
 			// 显示宜变之爻
 			const changeInfo = document.createElement('span');
 			changeInfo.className = 'result-info change';
-			const yaoNames = ['初', '二', '三', '四', '五', '上'];
-			changeInfo.textContent = ` 宜变：${yaoNames[changeYaoIndex]}爻`;
+			const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
+			changeInfo.textContent = ` 宜变：${YAO_NAMES[changeYaoIndex]}爻`;
 			resultBar.appendChild(changeInfo);
 
 			// 计算之卦索引（使用位操作）
@@ -685,8 +687,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		// 显示本卦卦爻辞
 		showGuaDetails(originalInfo.name, true, false);
-		// 显示保存按钮
-		showSaveButton();
 	}
 
 	// 应用选择的卦象（使用位操作优化）
@@ -739,8 +739,13 @@ document.addEventListener('DOMContentLoaded', function () {
 			drawYao(i, guaArray[i]);
 		}
 
-		// 禁用所有爻按钮
-		for (let i = 0; i < 6; i++) {
+		const firstBtn = document.getElementById('yaoBtn0');
+		firstBtn.disabled = false;
+		firstBtn.textContent = '重占';
+		firstBtn.onclick = reset;
+
+		// 禁用二到四爻按钮
+		for (let i = 1; i < 5; i++) {
 			document.getElementById(`yaoBtn${i}`).disabled = true;
 		}
 
@@ -758,11 +763,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	// 历史记录数据结构
 	let historyRecords = JSON.parse(localStorage.getItem('dayanHistory')) || [];
 	let currentRecordId = null;
-
-	// 显示保存按钮
-	function showSaveButton() {
-		saveBtn.style.display = 'inline-block';
-	}
 
 	// 加载记录
 	loadBtn.addEventListener('click', () => {
@@ -824,6 +824,20 @@ document.addEventListener('DOMContentLoaded', function () {
 		};
 		reader.readAsText(file);
 	});
+
+	// 显示保存模态框
+	function showSaveDialog() {
+		// 如果有当前记录，填充数据
+		if (currentRecordId) {
+			const record = historyRecords.find(r => r.id === currentRecordId);
+			eventInput.value = record.event || '';
+			noteInput.value = record.note || '';
+		} else {
+			eventInput.value = '';
+			noteInput.value = '';
+		}
+		saveModal.style.display = 'block';
+	};
 
 	// 保存记录到存储
 	function saveRecord(event, note) {
@@ -944,24 +958,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		// 应用卦象
 		applySelectedGua();
-
-		// 显示保存按钮
-		showSaveButton();
 	}
-
-	// 显示保存模态框
-	saveBtn.addEventListener('click', () => {
-		// 如果有当前记录，填充数据
-		if (currentRecordId) {
-			const record = historyRecords.find(r => r.id === currentRecordId);
-			eventInput.value = record.event || '';
-			noteInput.value = record.note || '';
-		} else {
-			eventInput.value = '';
-			noteInput.value = '';
-		}
-		saveModal.style.display = 'block';
-	});
 
 	// 关闭保存模态框
 	closeSave.addEventListener('click', () => saveModal.style.display = 'none');
@@ -999,12 +996,15 @@ document.addEventListener('DOMContentLoaded', function () {
 		const mainWrapper = document.querySelector('.main-wrapper');
 		mainWrapper.classList.remove('show-details');
 		document.querySelector('.gua-details-container').classList.remove('show');
-		// 隐藏保存按钮
-		saveBtn.style.display = 'none';
+		for (let i = 0; i < 6; i++) {
+			const btn = document.getElementById(`yaoBtn${i}`);
+			btn.textContent = `占${YAO_NAMES[i]}爻`;
+			btn.disabled = i !== 0;
+			btn.onclick = () => generateYao(i);
+		}
 	}
 
 	// 事件监听
-	restartBtn.addEventListener('click', reset);
 	applyBtn.addEventListener('click', applySelectedGua);
 	detailsTitle.addEventListener('click', scrollToResult);
 
