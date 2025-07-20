@@ -125,7 +125,14 @@ document.addEventListener('DOMContentLoaded', function () {
 		for (let i = 0; i < 6; i++) {
 			const btn = document.getElementById(`yaoBtn${i}`);
 			btn.textContent = `占${YAO_NAMES[i]}爻`;
-			btn.disabled = i !== 0;
+			if (i == 0) {
+				btn.classList.add('active-btn');
+				btn.focus();
+				btn.disabled = false;
+			}
+			else {
+				btn.disabled = true;
+			}
 			btn.onclick = () => onGenerateYaoClick(i);
 		}
     }
@@ -166,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			// 禁用当前爻按钮
 			const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
 			currentBtn.disabled = true;
+			currentBtn.classList.remove('active-btn');
 
 			// 如果是初爻（第一次点击），记录开始时间
 			if (yaoIndex === 0) {
@@ -183,6 +191,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				const nextYaoIndex = yaoIndex + 1;
 				const nextBtn = document.getElementById(`yaoBtn${nextYaoIndex}`);
 				nextBtn.disabled = false;
+				nextBtn.classList.add('active-btn');
+				nextBtn.focus();
 			}
 		});
 	}
@@ -420,6 +430,8 @@ document.addEventListener('DOMContentLoaded', function () {
 		const lastBtn = document.getElementById('yaoBtn5');
 		lastBtn.textContent = "保存";
 		lastBtn.disabled = false;
+		lastBtn.classList.add('active-btn');
+		lastBtn.focus();
 		lastBtn.onclick = showSaveDialog; // 触发保存模态框
 	}
 

@@ -33,6 +33,9 @@ body::before {
 		url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><path d="M20,20 Q100,5 180,20 T180,180 Q100,195 20,180 T20,20" fill="none" stroke="rgba(100,80,60,0.1)" stroke-width="1"/></svg>');
 	z-index: -1;
 }
+*:focus {
+	outline: 2px solid #f0c060;
+}
 
 .header {
 	text-align: center;
@@ -230,10 +233,18 @@ body::before {
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.yao-button:hover:enabled {
+.yao-button.active-btn {
 	background: rgba(100, 80, 40, 0.9);
 	box-shadow: 0 0 12px rgba(212, 180, 131, 0.7);
 	transform: translateY(-1px);
+}
+/* 保留桌面端的悬停效果 */
+@media (hover: hover) {
+	.yao-button:hover:enabled {
+		background: rgba(100, 80, 40, 0.9);
+		box-shadow: 0 0 12px rgba(212, 180, 131, 0.7);
+		transform: translateY(-1px);
+	}
 }
 
 .yao-button:disabled {
@@ -472,10 +483,10 @@ body::before {
 }
 
 .gua-symbol {
-    font-family: "Segoe UI Symbol", "STIX", sans-serif;
-    font-size: 1.2em;
-    margin-left: 3px;
-    vertical-align: middle;
+	font-family: "Segoe UI Symbol", "STIX", sans-serif;
+	font-size: 1.2em;
+	margin-left: 3px;
+	vertical-align: middle;
 }
 
 .gua-link {
@@ -508,21 +519,21 @@ body::before {
 }
 
 .extra-info {
-    padding: 12px;
-    background: rgba(30, 40, 50, 0.6);
-    border-radius: 8px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(100, 80, 60, 0.4);
-    font-size: 0.95rem;
-    line-height: 1.5;
+	padding: 12px;
+	background: rgba(30, 40, 50, 0.6);
+	border-radius: 8px;
+	margin-bottom: 15px;
+	border: 1px solid rgba(100, 80, 60, 0.4);
+	font-size: 0.95rem;
+	line-height: 1.5;
 }
 
 .extra-title {
-    color: #d4b483;
-    font-weight: bold;
-    margin-bottom: 5px;
-    text-align: center;
-    letter-spacing: 1px;
+	color: #d4b483;
+	font-weight: bold;
+	margin-bottom: 5px;
+	text-align: center;
+	letter-spacing: 1px;
 }
 
 .modal {
@@ -726,7 +737,7 @@ body::before {
 		gap: 10px;
 		margin-top: 10px;
 		width: 100%;
-        justify-content: center;
+		justify-content: center;
 	}
 	.gua-details-container {
 		width: 100%;
@@ -741,9 +752,9 @@ body::before {
 		flex-direction: row;
 	}
 
-    .button-group {
-        flex-direction: row;
-    }
+	.button-group {
+		flex-direction: row;
+	}
 	.control-group {
 		flex-direction: row;
 		justify-content: space-between;
