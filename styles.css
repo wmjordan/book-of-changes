@@ -188,18 +188,6 @@ body::before {
 	gap: 15px;
 }
 
-.grass-counter {
-	position: absolute;
-	top: 10px;
-	right: 10px;
-	background: rgba(0, 0, 0, 0.4);
-	padding: 5px 10px;
-	border-radius: 20px;
-	font-size: 0.85rem;
-	color: #d4b483;
-	border: 1px solid rgba(100, 80, 60, 0.3);
-}
-
 .gua-container {
 	display: flex;
 	flex-direction: column;

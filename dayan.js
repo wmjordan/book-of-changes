@@ -24,12 +24,6 @@ class Dayan {
 		return grasses;
 	}
 
-	// 更新蓍草计数器
-	updateGrassCounter() {
-		const usedCount = this.grasses.filter(g => g.used).length;
-		return `蓍草: ${50 - usedCount}根`;
-	}
-
 	// 重置占筮状态
 	reset() {
 		this.guaArray = [];

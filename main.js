@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const dayan = new Dayan();
 
 	const guaContainer = document.getElementById('guaContainer');
-	const grassCounter = document.getElementById('grassCounter');
 	const processList = document.getElementById('processList');
 	const resultText = document.getElementById('resultText');
 	const applyBtn = document.getElementById('applyBtn');
@@ -161,9 +160,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // 生成爻按钮点击处理
     function onGenerateYaoClick(yaoIndex) {
         dayan.generateYao(yaoIndex, (yaoIndex, steps, yaoValue) => {
-            // 更新蓍草计数器
-            grassCounter.textContent = dayan.updateGrassCounter();
-            
             // 绘制爻
             drawYao(yaoIndex, yaoValue);
             
@@ -841,5 +837,4 @@ document.addEventListener('DOMContentLoaded', function () {
 	initYaoRows();
 	initYaoButtons();
 	populateGuaSelects();
-	grassCounter.textContent = dayan.updateGrassCounter();
 });
