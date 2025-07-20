@@ -38,7 +38,7 @@ const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    const dayan = new Dayan();
+	const dayan = new Dayan();
 
 	const guaContainer = document.getElementById('guaContainer');
 	const processList = document.getElementById('processList');
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	// 初始化爻按钮事件
-    function initYaoButtons() {
+	function initYaoButtons() {
 		for (let i = 0; i < 6; i++) {
 			const btn = document.getElementById(`yaoBtn${i}`);
 			btn.textContent = `占${YAO_NAMES[i]}爻`;
@@ -134,37 +134,37 @@ document.addEventListener('DOMContentLoaded', function () {
 			}
 			btn.onclick = () => onGenerateYaoClick(i);
 		}
-    }
+	}
 
 	// 更新占筮过程列表
-    function updateProcessList() {
-        processList.innerHTML = '';
-        
-        dayan.processRecords.forEach(record => {
-            const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
-            const yaoType = dayan.getYaoType(record.finalValue);
+	function updateProcessList() {
+		processList.innerHTML = '';
+		
+		dayan.processRecords.forEach(record => {
+			const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
+			const yaoType = dayan.getYaoType(record.finalValue);
 
-            const processItem = document.createElement('div');
-            processItem.className = 'process-item';
-            processItem.innerHTML = `
-                <span class="yao-name">${YAO_NAMES[record.yaoIndex]}爻</span>
-                <span>${record.steps[0]}策</span>
-                <span>${record.steps[1]}策</span>
-                <span>${record.steps[2]}策</span>
-                <span class="yao-value">${record.finalValue} (${yaoType})</span>
-            `;
-            processList.appendChild(processItem);
-        });
-    }
+			const processItem = document.createElement('div');
+			processItem.className = 'process-item';
+			processItem.innerHTML = `
+				<span class="yao-name">${YAO_NAMES[record.yaoIndex]}爻</span>
+				<span>${record.steps[0]}策</span>
+				<span>${record.steps[1]}策</span>
+				<span>${record.steps[2]}策</span>
+				<span class="yao-value">${record.finalValue} (${yaoType})</span>
+			`;
+			processList.appendChild(processItem);
+		});
+	}
 
-    // 生成爻按钮点击处理
-    function onGenerateYaoClick(yaoIndex) {
-        dayan.generateYao(yaoIndex, (yaoIndex, steps, yaoValue) => {
-            // 绘制爻
-            drawYao(yaoIndex, yaoValue);
-            
-            // 更新过程列表
-            updateProcessList();
+	// 生成爻按钮点击处理
+	function onGenerateYaoClick(yaoIndex) {
+		dayan.generateYao(yaoIndex, (yaoIndex, steps, yaoValue) => {
+			// 绘制爻
+			drawYao(yaoIndex, yaoValue);
+			
+			// 更新过程列表
+			updateProcessList();
 
 			// 禁用当前爻按钮
 			const currentBtn = document.getElementById(`yaoBtn${yaoIndex}`);
@@ -234,13 +234,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	// 切换爻状态（动爻/静爻）
-    function toggleYaoState(yaoIndex) {
-        if (dayan.toggleYaoState(yaoIndex)) {
-            clearChangeMarker();
-            drawYao(yaoIndex, dayan.guaArray[yaoIndex]);
-            refreshGuaResult();
-        }
-    }
+	function toggleYaoState(yaoIndex) {
+		if (dayan.toggleYaoState(yaoIndex)) {
+			clearChangeMarker();
+			drawYao(yaoIndex, dayan.guaArray[yaoIndex]);
+			refreshGuaResult();
+		}
+	}
 
 	function clearChangeMarker(){
 		// 清除所有爻上的变爻标记
@@ -394,6 +394,15 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (isSpecial && isChanged) yaoDiv.classList.add('special');
 
 				yaoDiv.innerHTML = `<div class="yao-title">${text}</div>${details.爻象 && details.爻象[index] ? `<div>${details.爻象[index]}</div>` : ''}`;
+
+				if (isOriginal && isChanged) {
+					const relations = calculateYaoRelations(index, dayan.guaArray);
+					const relationDiv = document.createElement('div');
+					relationDiv.className = 'yao-relations';
+					relationDiv.innerHTML = `<strong>爻位：</strong>${relations.join('；')}`;
+					yaoDiv.appendChild(relationDiv);
+				}
+
 				div.appendChild(yaoDiv);
 			});
 		}
@@ -417,6 +426,73 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (scroll) {
 			container.scrollIntoView({ behavior: 'smooth' });
 		}
+	}
+
+	// 计算爻位关系
+	function calculateYaoRelations(yaoIndex, guaArray) {
+		const relations = [];
+		const currentYao = guaArray[yaoIndex];
+		const isYin = currentYao === 6 || currentYao === 8;
+
+		// 1. 承（阴爻在阳爻之下）
+		// 2. 乘（阴爻在阳爻之上）
+		if (yaoIndex < 5) {
+			const upperYao = guaArray[yaoIndex + 1];
+			const upperIsYang = upperYao === 7 || upperYao === 9;
+
+			if (isYin) {
+				if (upperIsYang) {
+					relations.push(`承${YAO_NAMES[yaoIndex + 1]}爻`);
+				}
+			}
+			else {
+				if (!upperIsYang) {
+					relations.push(`为${YAO_NAMES[yaoIndex + 1]}爻所乘`);
+				}
+			}
+		}
+
+		if (yaoIndex > 0) {
+			const lowerYao = guaArray[yaoIndex - 1];
+			const lowerIsYang = lowerYao === 7 || lowerYao === 9;
+
+			if (isYin) {
+				if (lowerIsYang) {
+					relations.push(`乘${YAO_NAMES[yaoIndex - 1]}爻`);
+				}
+			}
+			else {
+				if (!lowerIsYang) {
+					relations.push(`得${YAO_NAMES[yaoIndex - 1]}爻所承`);
+				}
+			}
+		}
+
+		// 3. 应（相应位置的关系）
+		const responsePairs = [[0, 3], [1, 4], [2, 5]];
+		for (const [a, b] of responsePairs) {
+			if (yaoIndex === a || yaoIndex === b) {
+				const otherIndex = yaoIndex === a ? b : a;
+				const otherYao = guaArray[otherIndex];
+				const otherIsYang = otherYao === 7 || otherYao === 9;
+
+				if (isYin === otherIsYang) {
+					relations.push(`应${YAO_NAMES[otherIndex]}爻`);
+				} else {
+					relations.push("无应");
+				}
+				break;
+			}
+		}
+
+		// 4. 当位（阴爻在偶位，阳爻在奇位）
+		const positionType = yaoIndex % 2 === 0 ? '阳位' : '阴位';
+		const correctPosition = (isYin && positionType === '阴位') ||
+			(!isYin && positionType === '阳位');
+
+		relations.push(`${correctPosition ? '当位' : '不当位'}（${YAO_NAMES[yaoIndex]}为${positionType}）`);
+
+		return relations;
 	}
 
 	// 显示卦结果

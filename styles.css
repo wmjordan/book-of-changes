@@ -470,6 +470,20 @@ body::before {
 	font-weight: bold;
 }
 
+.yao-relations {
+	font-size: 0.9em;
+	color: #a9a085;
+	margin-top: 8px;
+	padding: 6px;
+	background: rgba(30, 40, 50, 0.4);
+	border-radius: 4px;
+	line-height: 1.4;
+}
+  
+.yao-relations strong {
+	color: #d4b483;
+}
+
 .gua-symbol {
 	font-family: "Segoe UI Symbol", "STIX", sans-serif;
 	font-size: 1.2em;
