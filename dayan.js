@@ -115,25 +115,11 @@ class Dayan {
 		// 计算余数：大衍之数55 - 营数总和
 		let remainder = 55 - this.total;
 
-		// 确定宜变之爻位置
-		let current = 0;
-		let direction = 1; // 1:向上, -1:向下
-		remainder--; // 先数初爻（位置0）
-
-		while (remainder > 0) {
-			if (current === 5 && direction === 1) {
-				direction = -1;
-				current = 4;
-			} else if (current === 0 && direction === -1) {
-				direction = 1;
-				current = 1;
-			} else {
-				current += direction;
-			}
-			remainder--;
-		}
-
-		this.changeYaoIndex = current;
+		// 计算最终位置索引
+		let finalIndex = remainder % 12;
+		if (finalIndex === 0) finalIndex = 12; // 余数0视为12
+		// 宜变之爻计算：从初爻到上爻，再从上爻到初爻
+		this.changeYaoIndex = finalIndex < 7 ? finalIndex - 1 : 12 - finalIndex;
 	}
 
 	// 执行大衍筮法的一变
