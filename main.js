@@ -291,11 +291,11 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (structure.upper && structure.lower) {
 			if (structure.upper != structure.lower) {
 				title.innerHTML = `${symbol} ${structure.upper.象}${structure.lower.象}${guaName}`;
-				extraDiv.textContent = `${structure.lower.卦形}${structure.lower.名}下${structure.upper.卦形}${structure.upper.名}上`;
+				extraDiv.textContent = `${structure.lower.卦形}${structure.lower.名}下${structure.upper.卦形}${structure.upper.名}上 ${structure.lower.德}而${structure.upper.德}`;
 			}
 			else {
 				title.innerHTML = `${symbol} ${guaName}为${structure.upper.象}`;
-				extraDiv.textContent = `${structure.upper.卦形} 先天${structure.upper.先天方位} 后天${structure.upper.后天方位} ${structure.upper.季} ${structure.upper.身} ${structure.upper.亲} ${structure.upper.兽}`;
+				extraDiv.textContent = `${structure.upper.卦形} 先天${structure.upper.先天方位} 后天${structure.upper.后天方位} ${structure.upper.德} ${structure.upper.季} ${structure.upper.身} ${structure.upper.亲} ${structure.upper.兽}`;
 			}
 		}
 		else {
