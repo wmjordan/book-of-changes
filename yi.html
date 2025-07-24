@@ -23,6 +23,7 @@
 
 			<div class="container">
 				<div class="main-content">
+					<button id="showProcessBtn" class="process-btn" title="显示占筮过程">☯</button>
 					<div class="gua-container" id="guaContainer">
 						<!-- 爻行将由JavaScript动态生成（从下到上） -->
 					</div>
@@ -50,13 +51,6 @@
 				<div class="button-group">
 					<button class="apply-btn" id="applyBtn">手动设卦</button>
 					<button class="apply-btn" id="loadBtn">加载</button>
-				</div>
-			</div>
-
-			<div class="process-panel" style="display: none;">
-				<div class="panel-title">占筮过程</div>
-				<div class="process-list" id="processList">
-					<!-- 过程列表将由JavaScript动态生成 -->
 				</div>
 			</div>
 
@@ -113,6 +107,17 @@
 					<button id="confirmSave">保存</button>
 					<button id="cancelSave">取消</button>
 				</div>
+			</div>
+		</div>
+	</div>
+	<div id="processModal" class="modal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h3>占筮过程</h3>
+				<span class="close close-process">&times;</span>
+			</div>
+			<div class="modal-body">
+				<div class="process-list" id="processList"></div>
 			</div>
 		</div>
 	</div>

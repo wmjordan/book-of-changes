@@ -48,6 +48,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	const changedGuaSelect = document.getElementById('changedGua');
 	const detailsTitle = document.getElementById('guaDetailsTitle');
 
+	const showProcessBtn = document.getElementById('showProcessBtn');
+	const processModal = document.getElementById('processModal');
+	const closeProcess = document.querySelector('.close-process');
+
 	const loadBtn = document.getElementById('loadBtn');
 	const historyModal = document.getElementById('historyModal');
 	const closeModal = document.querySelector('.close');
@@ -139,20 +143,19 @@ document.addEventListener('DOMContentLoaded', function () {
 	// 更新占筮过程列表
 	function updateProcessList() {
 		processList.innerHTML = '';
-		
+
 		dayan.processRecords.forEach(record => {
-			const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
 			const yaoType = dayan.getYaoType(record.finalValue);
 
 			const processItem = document.createElement('div');
 			processItem.className = 'process-item';
 			processItem.innerHTML = `
-				<span class="yao-name">${YAO_NAMES[record.yaoIndex]}爻</span>
-				<span>${record.steps[0]}策</span>
-				<span>${record.steps[1]}策</span>
-				<span>${record.steps[2]}策</span>
-				<span class="yao-value">${record.finalValue} (${yaoType})</span>
-			`;
+			<span class="yao-name">${YAO_NAMES[record.yaoIndex]}爻</span>
+			<span>${record.steps[0]}策</span>
+			<span>${record.steps[1]}策</span>
+			<span>${record.steps[2]}策</span>
+			<span class="yao-value">${record.finalValue} (${yaoType})</span>
+		  `;
 			processList.appendChild(processItem);
 		});
 	}
@@ -178,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				currentBtn.textContent = "重占";
 				currentBtn.disabled = false;
 				currentBtn.onclick = reset; // 绑定重置
+				showProcessBtn.style.display = 'block';
 			}
 			// 如果是最后一爻，显示结果
 			if (yaoIndex === 5) {
@@ -659,6 +663,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		// 清空过程列表
 		processList.innerHTML = '';
+		showProcessBtn.style.display = 'none';
 
 		// 显示卦结果
 		showGuaResult();
@@ -886,7 +891,22 @@ document.addEventListener('DOMContentLoaded', function () {
 		saveRecord(event, note);
 		saveModal.style.display = 'none';
 	});
+	// 显示占筮过程
+	showProcessBtn.addEventListener('click', () => {
+		processModal.style.display = 'block';
+	});
 
+	// 关闭过程模态框
+	closeProcess.addEventListener('click', () => {
+		processModal.style.display = 'none';
+	});
+
+	// 点击模态框外部关闭
+	window.addEventListener('click', (e) => {
+		if (e.target === processModal) {
+			processModal.style.display = 'none';
+		}
+	});
 	// 重置
 	function reset() {
 		dayan.reset();
@@ -900,6 +920,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		initYaoButtons();
 		document.getElementById('guaDetailsContainer').style.display = 'none';
 		document.getElementById('processList').parentNode.style.display = 'none';
+		showProcessBtn.style.display = 'none';
 		const mainWrapper = document.querySelector('.main-wrapper');
 		mainWrapper.classList.remove('show-details');
 		document.querySelector('.gua-details-container').classList.remove('show');
