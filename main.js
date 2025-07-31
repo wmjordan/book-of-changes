@@ -378,6 +378,17 @@ document.addEventListener('DOMContentLoaded', function () {
 			content.appendChild(div);
 		}
 
+		// 添加文言
+		if (details.文言) {
+			const div = document.createElement('div');
+			div.className = 'gua-text';
+			div.innerHTML = `<div class="gua-text-title">文言</div>`;
+			for (let i = 0; i < details.文言.length; i++) {
+				div.appendChild(document.createElement('div')).textContent = details.文言[i];
+			}
+			content.appendChild(div);
+		}
+
 		// 添加爻辞
 		if (details.爻辞) {
 			const div = document.createElement('div');
@@ -398,6 +409,13 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (isSpecial && isChanged) yaoDiv.classList.add('special');
 
 				yaoDiv.innerHTML = `<div class="yao-title">${text}</div>${details.爻象 && details.爻象[index] ? `<div>${details.爻象[index]}</div>` : ''}`;
+
+				if (details.爻文言 && details.爻文言[index]) {
+					yaoDiv.appendChild(document.createElement('div')).textContent = "文言：";
+					details.爻文言[index].forEach((t, i) => {
+						yaoDiv.appendChild(document.createElement('div')).textContent = t;
+					});
+				}
 
 				if (isOriginal && isChanged) {
 					const relations = calculateYaoRelations(index, dayan.guaArray);
