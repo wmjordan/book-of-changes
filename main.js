@@ -521,6 +521,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	function showGuaResult() {
 		clearChangeMarker();
 		refreshGuaResult();
+		document.getElementById('xici-quote').textContent = quotes.fortune;
 		const lastBtn = document.getElementById('yaoBtn5');
 		lastBtn.textContent = "保存";
 		lastBtn.disabled = false;
@@ -942,6 +943,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		const mainWrapper = document.querySelector('.main-wrapper');
 		mainWrapper.classList.remove('show-details');
 		document.querySelector('.gua-details-container').classList.remove('show');
+		document.getElementById('xici-quote').textContent = quotes.dayanNumbers;
 	}
 
 	// 事件监听
