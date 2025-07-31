@@ -624,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (dayan.changeYaoIndex !== -1 && (guaArray[dayan.changeYaoIndex] === 6 || guaArray[dayan.changeYaoIndex] === 9)) {
 			const changeMarker = document.createElement('div');
 			changeMarker.className = 'change-marker';
-			changeMarker.textContent = '变';
+			changeMarker.textContent = '宜变';
 			document.getElementById(`yaoDisplay${dayan.changeYaoIndex}`).appendChild(changeMarker);
 		}
 
