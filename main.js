@@ -280,6 +280,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	// 显示卦详细信息
 	function showGuaDetails(guaName, isOriginal, scroll) {
 		const details = guaTexts[guaName] || {};
+		const order = GUA_ORDER_MAP[guaName] || '未知';
 		const container = document.getElementById('guaDetailsContainer');
 		const title = document.getElementById('guaDetailsTitle');
 		const content = document.getElementById('guaDetailsContent');
@@ -305,6 +306,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		else {
 			title.innerHTML = `${symbol} ${guaName}卦`;
 		}
+		title.innerHTML += ` (${order})`;
 
 		// 显示世爻信息
 		if (details.八宫) {
