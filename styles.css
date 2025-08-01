@@ -825,6 +825,10 @@ body::before {
 }
 
 @media (max-width: 480px) {
+	body, .main-wrapper, .content-column {
+		max-width: 100%;
+		overflow-x: hidden;
+	}
 	.process-item {
 		font-size: 0.8rem;
 		padding: 6px;
