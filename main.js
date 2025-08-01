@@ -40,9 +40,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	const dayan = new Dayan();
 
+	const resultBar = document.getElementById('resultBar');
+	const resultText = document.getElementById('resultText');
 	const guaContainer = document.getElementById('guaContainer');
 	const processList = document.getElementById('processList');
-	const resultText = document.getElementById('resultText');
 	const applyBtn = document.getElementById('applyBtn');
 	const originalGuaSelect = document.getElementById('originalGua');
 	const changedGuaSelect = document.getElementById('changedGua');
@@ -94,10 +95,9 @@ document.addEventListener('DOMContentLoaded', function () {
 	function initYaoRows() {
 		guaContainer.innerHTML = '';
 		processList.innerHTML = '';
-		resultText.textContent = '-';
+		resultBar.style.display = 'none';
 
 		// 清除之前的结果信息
-		const resultBar = document.querySelector('.result-bar');
 		const extraInfos = resultBar.querySelectorAll('.result-info');
 		extraInfos.forEach(el => el.remove());
 
@@ -522,6 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		clearChangeMarker();
 		refreshGuaResult();
 		document.getElementById('xici-quote').textContent = quotes.fortune;
+		resultBar.style.display = 'block';
 		const lastBtn = document.getElementById('yaoBtn5');
 		lastBtn.textContent = "保存";
 		lastBtn.disabled = false;
@@ -531,7 +532,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	function refreshGuaResult() {
-		const resultBar = document.querySelector('.result-bar');
 		let guaArray = dayan.guaArray;
 
 		// 清除之前的结果信息
@@ -937,9 +937,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		initYaoRows();
 		initYaoButtons();
-		document.getElementById('guaDetailsContainer').style.display = 'none';
-		document.getElementById('processList').parentNode.style.display = 'none';
-		showProcessBtn.style.display = 'none';
+		document.getElementById('guaDetailsContainer').style.display =
+			document.getElementById('processList').parentNode.style.display =
+			showProcessBtn.style.display =
+			resultBar.style.display = 'none';
 		const mainWrapper = document.querySelector('.main-wrapper');
 		mainWrapper.classList.remove('show-details');
 		document.querySelector('.gua-details-container').classList.remove('show');

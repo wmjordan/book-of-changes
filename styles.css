@@ -122,7 +122,7 @@ body::before {
 	box-shadow: 0 0 10px rgba(212, 180, 131, 0.5);
 }
 
-.result-bar {
+#resultBar {
 	background: rgba(20, 30, 40, 0.85);
 	border-radius: 10px;
 	padding: 15px 25px;
@@ -136,7 +136,7 @@ body::before {
 	z-index: 2;
 }
 
-.result-bar h3 {
+#resultBar h3 {
 	font-size: 1.3rem;
 	color: #d4b483;
 	margin-bottom: 10px;
@@ -798,11 +798,11 @@ body::before {
 		font-size: 1.8rem;
 	}
 
-	.result-bar {
+	#resultBar {
 		padding: 10px 15px;
 	}
 
-	.result-bar h3 {
+	#resultBar h3 {
 		font-size: 1.1rem;
 	}
 
