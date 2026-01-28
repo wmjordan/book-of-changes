@@ -1,3 +1,5 @@
+const IS_FILE_PROTOCOL = window.location.protocol === 'file:';
+
 // 卦名数据
 const GUA_DATA = [
 	"乾", "坤", "屯", "蒙", "需", "讼", "师", "比",
@@ -28,13 +30,159 @@ const BINARY_ORDER = [
 	'否', '无妄', '讼', '履', '遁', '同人', '姤', '乾'
 ];
 
+const trigrams = [
+	{ "名": "坤", "卦形": "☷", "象": "地", "德": "顺", "季": "立秋", "先天方位": "北", "后天方位": "西南", "身": "腹", "亲": "母", "兽": "牛" },
+	{ "名": "震", "卦形": "☳", "象": "雷", "德": "动", "季": "春分", "先天方位": "东北", "后天方位": "东", "身": "足", "亲": "长兄", "兽": "龙" },
+	{ "名": "坎", "卦形": "☵", "象": "水", "德": "陷", "季": "冬至", "先天方位": "西", "后天方位": "北", "身": "耳", "亲": "中男", "兽": "豕" },
+	{ "名": "兑", "卦形": "☱", "象": "泽", "德": "悦", "季": "秋分", "先天方位": "东南", "后天方位": "西", "身": "口", "亲": "少女", "兽": "羊" },
+	{ "名": "艮", "卦形": "☶", "象": "山", "德": "止", "季": "立春", "先天方位": "西北", "后天方位": "东北", "身": "手", "亲": "少男", "兽": "狗" },
+	{ "名": "离", "卦形": "☲", "象": "火", "德": "丽", "季": "夏至", "先天方位": "东", "后天方位": "南", "身": "目", "亲": "中女", "兽": "雉" },
+	{ "名": "巽", "卦形": "☴", "象": "风", "德": "入", "季": "立夏", "先天方位": "西南", "后天方位": "东南", "身": "股", "亲": "长女", "兽": "鸡" },
+	{ "名": "乾", "卦形": "☰", "象": "天", "德": "健", "季": "立冬", "先天方位": "南", "后天方位": "西北", "身": "首", "亲": "父", "兽": "马" },
+];
+
+const quotes = {
+	dayanNumbers: "大衍之数五十，其用四十有九。分而为二以象两，挂一以象三，揲之以四以象四时，归奇于扐以象闰。",
+	fortune: "彖者，言乎象者也；爻者，言乎变者也。吉凶者，言乎其失得也；悔吝者，言乎其小疵也。无咎者，善补过也。"
+};
+
 // 创建卦名到位序的映射
 const GUA_NAME_TO_INDEX = {};
 BINARY_ORDER.forEach((name, index) => {
 	GUA_NAME_TO_INDEX[name] = index;
 });
 
+
 const YAO_NAMES = ['初', '二', '三', '四', '五', '上'];
+
+// 卦爻辞缓存
+const guaTextsCache = {};
+
+// 卦爻辞加载状态
+const guaTextsLoading = {};
+
+// 卦爻辞加载队列
+const guaTextsQueue = [];
+
+// 卦爻辞加载器
+class GuaTextsLoader {
+	constructor() {
+		this.baseUrl = 'gua_texts/';
+		this.cache = {};
+		this.loading = {};
+		this.loadedCount = 0;
+	}
+	
+	// 加载单个卦的爻辞
+	async loadGuaText(guaName) {
+		// 如果已经在缓存中，直接返回
+		if (this.cache[guaName]) {
+			return this.cache[guaName];
+		}
+		
+		// 如果正在加载中，等待
+		if (this.loading[guaName]) {
+			return this.loading[guaName];
+		}
+		
+		// 创建加载Promise
+		const loadPromise = this._fetchGuaText(guaName);
+		this.loading[guaName] = loadPromise;
+		
+		try {
+			const guaText = await loadPromise;
+			this.cache[guaName] = guaText;
+			this.loadedCount++;
+			return guaText;
+		} finally {
+			delete this.loading[guaName];
+		}
+	}
+	
+	// 预加载多个卦的爻辞
+	async preloadGuaTexts(guaNames) {
+		const promises = guaNames.map(guaName => this.loadGuaText(guaName));
+		return Promise.allSettled(promises);
+	}
+	
+	// 获取卦爻辞（同步，如果已加载）
+	getGuaTextSync(guaName) {
+		return this.cache[guaName] || null;
+	}
+	
+	// 获取卦爻辞（异步，优先从缓存）
+	async getGuaText(guaName) {
+		return this.loadGuaText(guaName);
+	}
+	
+	// 获取卦爻辞，带降级处理
+	async getGuaTextWithFallback(guaName, fallbackData = null) {
+		try {
+			const text = await this.loadGuaText(guaName);
+			return text;
+		} catch (error) {
+			console.warn(`加载卦爻辞失败: ${guaName}`, error);
+			
+			// 返回降级数据
+			return fallbackData || {
+				卦名: guaName,
+				卦序: GUA_ORDER_MAP[guaName] || 0,
+				卦辞: `【${guaName}卦】爻辞加载中...`,
+				爻辞: Array(6).fill(0).map((_, i) => `${YAO_NAMES[i]}爻: 爻辞加载中...`)
+			};
+		}
+	}
+	
+	// 内部获取方法
+	async _fetchGuaText(guaName) {
+		const url = `${this.baseUrl}${guaName}.json`;
+		
+		// 设置超时
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 5000); // 5秒超时
+		
+		try {
+			const response = await fetch(url, {
+				signal: controller.signal
+			});
+			
+			clearTimeout(timeoutId);
+			
+			if (!response.ok) {
+				throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+			}
+			
+			return await response.json();
+		} catch (error) {
+			clearTimeout(timeoutId);
+			
+			// 网络错误或超时，尝试从备用位置加载
+			if (error.name === 'AbortError') {
+				console.warn(`加载超时: ${guaName}`);
+			}
+			
+			// 可以在这里添加重试逻辑或备用数据源
+			throw error;
+		}
+	}
+	
+	// 清除缓存
+	clearCache() {
+		this.cache = {};
+		this.loadedCount = 0;
+	}
+	
+	// 获取已加载数量
+	getLoadedCount() {
+		return this.loadedCount;
+	}
+}
+
+// 创建加载器实例
+let guaTextsLoader = null;
+if (!IS_FILE_PROTOCOL) {
+	guaTextsLoader = new GuaTextsLoader();
+}
 
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -66,6 +214,16 @@ document.addEventListener('DOMContentLoaded', function () {
 	const cancelSave = document.getElementById('cancelSave');
 	const eventInput = document.getElementById('eventInput');
 	const noteInput = document.getElementById('noteInput');
+
+	if (!IS_FILE_PROTOCOL) {
+		// 预加载常用卦的爻辞（可以在空闲时进行）
+		setTimeout(() => {
+			// 预加载乾坤两卦（最常用）
+			guaTextsLoader.preloadGuaTexts(['乾', '坤']).then(results => {
+				console.log('预加载完成:', results.map(r => r.status));
+			});
+		}, 1000);
+	}
 
 	// 获取卦形符号
 	function getGuaSymbol(guaName, hexgram) {
@@ -278,37 +436,103 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	// 显示卦详细信息
-	function showGuaDetails(guaName, isOriginal, scroll) {
-		const details = guaTexts[guaName] || {};
-		const order = GUA_ORDER_MAP[guaName] || '未知';
+	async function showGuaDetails(guaName, isOriginal, scroll) {
 		const container = document.getElementById('guaDetailsContainer');
 		const title = document.getElementById('guaDetailsTitle');
 		const content = document.getElementById('guaDetailsContent');
-
-		content.innerHTML = ''; // 清空内容
-
-		// 显示上下卦
+		
+		// 如果是非file协议，显示加载状态
+		if (!IS_FILE_PROTOCOL) {
+			content.innerHTML = '<div class="loading-text">加载卦爻辞中...</div>';
+		}
+		
+		// 显示卦基本信息（不依赖爻辞文件）
+		const order = GUA_ORDER_MAP[guaName] || '未知';
+		const symbol = getGuaSymbol(guaName, true);
+		title.innerHTML = `${symbol} ${guaName}卦 (${order})`;
+		
+		// 显示上下卦信息（从trigrams中获取）
 		const structure = getGuaStructure(guaName);
+		if (structure.upper && structure.lower) {
+			if (structure.upper.名 != structure.lower.名) {
+				title.innerHTML = `${symbol} ${structure.upper.象}${structure.lower.象}${guaName} (${order})`;
+			} else {
+				title.innerHTML = `${symbol} ${guaName}为${structure.upper.象} (${order})`;
+			}
+		}
+		
+		container.style.display = 'block';
+		setTimeout(() => {
+			container.classList.add('show');
+		}, 10);
+		
+		const mainWrapper = document.querySelector('.main-wrapper');
+		mainWrapper.classList.add('show-details');
+		
+		if (IS_FILE_PROTOCOL) {
+			// file协议：直接从已加载的guaTexts中获取
+			details = guaTexts ? guaTexts[guaName] : null;
+			if (!details) {
+				content.innerHTML = `<div class="error-text">未找到${guaName}卦的爻辞数据</div>`;
+			} else {
+				renderGuaDetails(content, guaName, details, isOriginal, structure);
+			}
+		} else {
+			// 非file协议：使用异步加载
+			try {
+				details = await guaTextsLoader.getGuaTextWithFallback(guaName);
+				renderGuaDetails(content, guaName, details, isOriginal, structure);
+				
+				// 如果加载成功，预加载相关卦
+				if (!details.加载失败) {
+					preloadRelatedGuaTexts(guaName);
+				}
+			} catch (error) {
+				console.error('加载卦爻辞失败:', error);
+				content.innerHTML = `
+					<div class="error-text">
+						<p>加载卦爻辞失败，请检查网络连接</p>
+						<button onclick="retryLoadGuaText('${guaName}', ${isOriginal})">重试加载</button>
+						<div class="basic-info">
+							<p><strong>${guaName}卦</strong> (${order})</p>
+							<p>卦辞加载失败，请稍后重试</p>
+						</div>
+					</div>
+				`;
+			}
+		}
+		
+		// 滚动到详情区域
+		if (scroll) {
+			container.scrollIntoView({ behavior: 'smooth' });
+		}
+	}
+
+	// 渲染卦详细信息
+	async function renderGuaDetails(container, guaName, details, isOriginal, structure) {
+		container.innerHTML = '';
+		
+		// 显示上下卦
 		const extraDiv = document.createElement('div');
 		extraDiv.className = 'extra-info';
-		content.appendChild(extraDiv);
-		const symbol = getGuaSymbol(guaName, true);
+		
 		if (structure.upper && structure.lower) {
-			if (structure.upper != structure.lower) {
-				title.innerHTML = `${symbol} ${structure.upper.象}${structure.lower.象}${guaName}`;
+			if (structure.upper.名 != structure.lower.名) {
 				extraDiv.textContent = `${structure.lower.卦形}${structure.lower.名}下${structure.upper.卦形}${structure.upper.名}上 ${structure.lower.德}而${structure.upper.德}`;
-			}
-			else {
-				title.innerHTML = `${symbol} ${guaName}为${structure.upper.象}`;
+			} else {
 				extraDiv.textContent = `${structure.upper.卦形} 先天${structure.upper.先天方位} 后天${structure.upper.后天方位} ${structure.upper.德} ${structure.upper.季} ${structure.upper.身} ${structure.upper.亲} ${structure.upper.兽}`;
 			}
 		}
-		else {
-			title.innerHTML = `${symbol} ${guaName}卦`;
-		}
-		title.innerHTML += ` (${order})`;
+		container.appendChild(extraDiv);
 
-		// 显示世爻信息
+		if (details.加载失败) {
+			const warningDiv = document.createElement('div');
+			warningDiv.className = 'warning-text';
+			warningDiv.textContent = '注意：爻辞数据尚未完全加载，部分内容可能无法显示';
+			container.appendChild(warningDiv);
+		}
+		
+		// 显示八宫信息
 		if (details.八宫) {
 			const palace = details.八宫;
 			extraDiv.textContent += ` ${palace.宫}${palace.卦次}卦`;
@@ -318,7 +542,7 @@ document.addEventListener('DOMContentLoaded', function () {
 				extraDiv.textContent += ` ${details.消息}`;
 			}
 		}
-
+		
 		// 计算并显示覆卦、错卦、互卦
 		const guaIndex = BINARY_ORDER.indexOf(guaName);
 		if (guaIndex !== -1) {
@@ -346,7 +570,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				错卦: <span class="gua-link" data-gua="${cuoName}">${cuoName}${getGuaSymbol(cuoName, true)}</span>
 				互卦: <span class="gua-link" data-gua="${huName}">${huName}${getGuaSymbol(huName, true)}</span>
 			`;
-			content.appendChild(relationsDiv);
+			container.appendChild(relationsDiv);
+			
 			// 添加点击事件
 			relationsDiv.querySelectorAll('.gua-link').forEach(link => {
 				link.addEventListener('click', function () {
@@ -355,31 +580,31 @@ document.addEventListener('DOMContentLoaded', function () {
 				});
 			});
 		}
-
+		
 		// 添加卦辞
 		if (details.卦辞) {
 			const div = document.createElement('div');
 			div.className = 'gua-text';
 			div.innerHTML = `<div class="gua-text-title">卦辞</div><div>${details.卦辞}</div>`;
-			content.appendChild(div);
+			container.appendChild(div);
 		}
-
+		
 		// 添加彖辞
 		if (details.彖) {
 			const div = document.createElement('div');
 			div.className = 'gua-text';
 			div.innerHTML = `<div class="gua-text-title">彖辞</div><div>${details.彖}</div>`;
-			content.appendChild(div);
+			container.appendChild(div);
 		}
-
+		
 		// 添加象辞
 		if (details.象) {
 			const div = document.createElement('div');
 			div.className = 'gua-text';
 			div.innerHTML = `<div class="gua-text-title">象辞</div><div>${details.象}</div>`;
-			content.appendChild(div);
+			container.appendChild(div);
 		}
-
+		
 		// 添加文言
 		if (details.文言) {
 			const div = document.createElement('div');
@@ -388,37 +613,37 @@ document.addEventListener('DOMContentLoaded', function () {
 			for (let i = 0; i < details.文言.length; i++) {
 				div.appendChild(document.createElement('div')).textContent = details.文言[i];
 			}
-			content.appendChild(div);
+			container.appendChild(div);
 		}
-
+		
 		// 添加爻辞
 		if (details.爻辞) {
 			const div = document.createElement('div');
 			div.className = 'gua-text';
 			div.innerHTML = `<div class="gua-text-title">爻辞</div>`;
-			content.appendChild(div);
-
+			container.appendChild(div);
+			
 			details.爻辞.forEach((text, index) => {
 				const yaoDiv = document.createElement('div');
 				yaoDiv.className = 'yao-item';
-
+				
 				// 检查是否是变爻
 				const isChanged = window.changeYaoIndexes && window.changeYaoIndexes.includes(index);
 				// 检查是否是宜变之爻
 				const isSpecial = window.specialYaoIndex === index;
-
+				
 				if (isChanged) yaoDiv.classList.add('changed');
 				if (isSpecial && isChanged) yaoDiv.classList.add('special');
-
+				
 				yaoDiv.innerHTML = `<div class="yao-title">${text}</div>${details.爻象 && details.爻象[index] ? `<div>${details.爻象[index]}</div>` : ''}`;
-
+				
 				if (details.爻文言 && details.爻文言[index]) {
 					yaoDiv.appendChild(document.createElement('div')).textContent = "文言：";
 					details.爻文言[index].forEach((t, i) => {
 						yaoDiv.appendChild(document.createElement('div')).textContent = t;
 					});
 				}
-
+				
 				if (isOriginal && isChanged) {
 					const relations = calculateYaoRelations(index, dayan.guaArray);
 					const relationDiv = document.createElement('div');
@@ -426,31 +651,58 @@ document.addEventListener('DOMContentLoaded', function () {
 					relationDiv.innerHTML = `<strong>爻位：</strong>${relations.join('；')}`;
 					yaoDiv.appendChild(relationDiv);
 				}
-
+				
 				div.appendChild(yaoDiv);
 			});
 		}
-
+		
 		// 添加杂卦
 		if (details.杂卦) {
 			const div = document.createElement('div');
 			div.className = 'gua-text';
 			div.innerHTML = `<div class="gua-text-title">杂卦</div><div>${details.杂卦}</div>`;
-			content.appendChild(div);
-		}
-
-		container.style.display = 'block';
-		setTimeout(() => {
-			container.classList.add('show'); // 延迟触发显示动画
-		}, 10);
-		const mainWrapper = document.querySelector('.main-wrapper');
-		mainWrapper.classList.add('show-details');
-
-		// 滚动到详情区域
-		if (scroll) {
-			container.scrollIntoView({ behavior: 'smooth' });
+			container.appendChild(div);
 		}
 	}
+
+	// 预加载相关卦的爻辞
+	function preloadRelatedGuaTexts(guaName) {
+		if (IS_FILE_PROTOCOL || !guaTextsLoader) return;
+		
+		const guaIndex = BINARY_ORDER.indexOf(guaName);
+		if (guaIndex === -1) return;
+		
+		// 计算相关卦
+		let binaryStr = guaIndex.toString(2).padStart(6, '0');
+		
+		// 覆卦
+		const fuBinary = binaryStr.split('').reverse().join('');
+		const fuIndex = parseInt(fuBinary, 2);
+		const fuName = BINARY_ORDER[fuIndex];
+		
+		// 错卦
+		const cuoBinary = binaryStr.split('').map(bit => bit === '0' ? '1' : '0').join('');
+		const cuoIndex = parseInt(cuoBinary, 2);
+		const cuoName = BINARY_ORDER[cuoIndex];
+		
+		// 互卦
+		const huBinary = binaryStr[1] + binaryStr[2] + binaryStr[3] + binaryStr[2] + binaryStr[3] + binaryStr[4];
+		const huIndex = parseInt(huBinary, 2);
+		const huName = BINARY_ORDER[huIndex];
+		
+		// 预加载相关卦
+		const relatedGua = [fuName, cuoName, huName].filter(name => name && name !== guaName);
+		if (relatedGua.length > 0) {
+			guaTextsLoader.preloadGuaTexts(relatedGua);
+		}
+	}
+
+	// 重试加载函数（暴露给全局）
+	window.retryLoadGuaText = function(guaName, isOriginal) {
+		if (!IS_FILE_PROTOCOL) {
+			showGuaDetails(guaName, isOriginal, false);
+		}
+	};
 
 	// 计算爻位关系
 	function calculateYaoRelations(yaoIndex, guaArray) {
@@ -531,6 +783,30 @@ document.addEventListener('DOMContentLoaded', function () {
 		lastBtn.classList.add('active-btn');
 		lastBtn.focus();
 		lastBtn.onclick = showSaveDialog; // 触发保存模态框
+		
+		// 如果是非file协议，预加载相关爻辞
+		if (!IS_FILE_PROTOCOL && guaTextsLoader) {
+			const originalElement = document.querySelector('.gua-link[data-type="original"]');
+			const changedElement = document.querySelector('.gua-link[data-type="changed"]');
+			
+			if (originalElement) {
+				const originalGua = originalElement.getAttribute('data-gua');
+				const changedGua = changedElement ? changedElement.getAttribute('data-gua') : originalGua;
+				
+				// 预加载本卦和之卦的爻辞
+				const guasToPreload = [originalGua];
+				if (changedGua !== originalGua) {
+					guasToPreload.push(changedGua);
+				}
+				
+				// 异步预加载，不阻塞主线程
+				setTimeout(() => {
+					guaTextsLoader.preloadGuaTexts(guasToPreload).then(() => {
+						console.log(`预加载完成，已加载${guaTextsLoader.getLoadedCount()}个卦的爻辞`);
+					});
+				}, 100);
+			}
+		}
 	}
 
 	function refreshGuaResult() {
@@ -957,4 +1233,12 @@ document.addEventListener('DOMContentLoaded', function () {
 	initYaoRows();
 	initYaoButtons();
 	populateGuaSelects();
+
+	// 如果是非file协议，在控制台显示提示
+	if (!IS_FILE_PROTOCOL) {
+		console.log('网络环境：使用按需加载卦爻辞模式');
+		console.log('卦爻辞文件位于: gua_texts/ 目录');
+	} else {
+		console.log('本地文件环境：使用完整卦爻辞数据');
+	}
 });

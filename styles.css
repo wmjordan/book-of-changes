@@ -728,6 +728,48 @@ body::before {
 	color: #d4b483;
 	border: 1px solid #8a6d3b;
 }
+
+/* 提示文本 */
+.loading-text {
+    text-align: center;
+    padding: 20px;
+    color: #8a7f6c;
+    font-style: italic;
+}
+
+.error-text {
+    text-align: center;
+    padding: 20px;
+    color: #c97a7a;
+    border: 1px solid #c97a7a;
+    border-radius: 5px;
+    margin: 10px 0;
+    background-color: rgba(201, 122, 122, 0.1);
+}
+
+.error-text button {
+    margin: 10px;
+    padding: 5px 15px;
+    background-color: #8a7f6c;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.error-text button:hover {
+    background-color: #a0937a;
+}
+
+.warning-text {
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 5px;
+    color: #856404;
+}
+
 /* 宽屏布局 - 最小宽度 1000px */
 @media (min-width: 1000px) {
 	.main-wrapper {
