@@ -88,7 +88,7 @@ def split_gua_texts_for_web(text_js_file, output_dir='gua_texts'):
             # 保存为JSON文件
             output_file = os.path.join(output_dir, f"{gua_name}.json")
             with open(output_file, 'w', encoding='utf-8') as f:
-                json.dump(enhanced_data, f, ensure_ascii=False, indent=2)
+                json.dump(enhanced_data, f, ensure_ascii=False, indent='\t')
             
             processed += 1
             print(f"已生成: {gua_name}.json")
@@ -106,7 +106,7 @@ def split_gua_texts_for_web(text_js_file, output_dir='gua_texts'):
     
     index_file = os.path.join(output_dir, "_index.json")
     with open(index_file, 'w', encoding='utf-8') as f:
-        json.dump(index_data, f, ensure_ascii=False, indent=2)
+        json.dump(index_data, f, ensure_ascii=False, indent='\t')
     
     print(f"\n处理完成!")
     print(f"成功拆分: {processed} 个卦的爻辞")
