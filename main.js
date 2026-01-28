@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (details.象) {
 			const div = document.createElement('div');
 			div.className = 'gua-text';
-			div.innerHTML = `<div class="gua-text-title">象辞</div><div>${details.象}</div>`;
+			div.innerHTML = `<div class="gua-text-title">象辞</div><div>象曰：${details.象}</div>`;
 			container.appendChild(div);
 		}
 		
@@ -617,13 +617,13 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 		
 		// 添加爻辞
-		if (details.爻辞) {
+		if (details.爻) {
 			const div = document.createElement('div');
 			div.className = 'gua-text';
 			div.innerHTML = `<div class="gua-text-title">爻辞</div>`;
 			container.appendChild(div);
 			
-			details.爻辞.forEach((text, index) => {
+			details.爻.forEach((yaoData, index) => {
 				const yaoDiv = document.createElement('div');
 				yaoDiv.className = 'yao-item';
 				
@@ -635,11 +635,14 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (isChanged) yaoDiv.classList.add('changed');
 				if (isSpecial && isChanged) yaoDiv.classList.add('special');
 				
-				yaoDiv.innerHTML = `<div class="yao-title">${text}</div>${details.爻象 && details.爻象[index] ? `<div>${details.爻象[index]}</div>` : ''}`;
+				yaoDiv.innerHTML = `<div class="yao-title">${yaoData.辞}</div>`;
+				if (yaoData.象) {
+					yaoDiv.innerHTML += `<div>象曰：${yaoData.象}</div>`;
+				}
 				
-				if (details.爻文言 && details.爻文言[index]) {
+				if (yaoData.文言) {
 					yaoDiv.appendChild(document.createElement('div')).textContent = "文言：";
-					details.爻文言[index].forEach((t, i) => {
+					yaoData.文言.forEach((t, i) => {
 						yaoDiv.appendChild(document.createElement('div')).textContent = t;
 					});
 				}
@@ -654,6 +657,14 @@ document.addEventListener('DOMContentLoaded', function () {
 				
 				div.appendChild(yaoDiv);
 			});
+		}
+		
+		// 添加序卦
+		if (details.序卦) {
+			const div = document.createElement('div');
+			div.className = 'gua-text';
+			div.innerHTML = `<div class="gua-text-title">序卦</div><div>${details.序卦}</div>`;
+			container.appendChild(div);
 		}
 		
 		// 添加杂卦
